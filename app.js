@@ -7,7 +7,6 @@ var indexRouter = require("./src/index").default;
 var usersRouter = require("./src/index/d").default;
 
 var app = express();
-
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
