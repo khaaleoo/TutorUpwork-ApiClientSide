@@ -4,7 +4,10 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "dev": "nodemon ./bin/www"
+
+    "dev": "nodemon ./bin/www",
+    "test": "mocha  src/*.test.js --exit"
+
   },
   "lint-staged": {
     "*.js": [
@@ -15,7 +18,9 @@
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged",
-      "pre-push": "git-branch-is -r \"^((?!master).)*$\""
+
+      "pre-push": "git-branch-is -r \"^((?!master).)*$\" && npm test"
+
     }
   },
   "dependencies": {
@@ -26,6 +31,7 @@
     "morgan": "~1.9.1"
   },
   "devDependencies": {
+    "chai": "^4.2.0",
     "eslint": "^6.6.0",
     "eslint-config-standard": "^14.1.0",
     "eslint-plugin-import": "^2.18.2",
@@ -35,6 +41,7 @@
     "git-branch-is": "^3.1.0",
     "husky": "^3.1.0",
     "lint-staged": "^9.4.3",
+    "mocha": "^6.2.2",
     "nodemon": "^1.19.4"
   }
 }
