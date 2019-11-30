@@ -6,7 +6,7 @@
     "lint": "eslint",
     "tsc": "tsc",
     "start": "node ./bin/www",
-    "test": "mocha  src/*.test.js --exit",
+    "test": "mocha  --exit",
     "dev": "ts-node-dev --respawn --transpileOnly ./app.ts",
     "prod": "tsc && node ./build/app.js"
   },
