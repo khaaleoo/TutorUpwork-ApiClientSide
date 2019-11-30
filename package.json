@@ -19,7 +19,9 @@
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged",
+
       "pre-push": "git-branch-is -r \"^((?!master).)*$\" && npm test"
+
     }
   },
   "dependencies": {
