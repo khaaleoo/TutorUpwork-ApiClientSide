@@ -1,26 +1,16 @@
 import express, { Router } from "express";
 const router = Router();
-import UserController from "./user";
-import AuthController from "./auth";
+import { UserRoutes } from "./user/user.route";
 
 const assign: { path: string, controller: Router }[] = [
   {
     path: "/users",
-    controller: UserController
-  },
-  {
-    path: "/auth",
-    controller: AuthController
+    controller: new UserRoutes().router
   }
 ]
-
-
 
 assign.forEach(({ path, controller }) => {
   router.use(path, controller);
 })
-
-
-
 
 export default router;
