@@ -19,6 +19,7 @@ export class UserController {
                 password: req.body.password,
                 role: req.body.role,
                 type: 1
+
             });
             res.status(200).send({ status: "OK", message: plainToClass(User, result) });
         } catch (error) {

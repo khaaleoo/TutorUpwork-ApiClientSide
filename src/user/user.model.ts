@@ -33,16 +33,20 @@ export const userSchema: Schema = new Schema({
     },
     email: {
         type: String, required: true,
+
         trim: true,
+
         match: /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
     },
     role: {
         type: String,
         required: true
     },
+
     type: {
         type: Number,
         required: true
+
     }
 });
 
