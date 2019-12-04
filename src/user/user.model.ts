@@ -15,7 +15,7 @@ export class User {
 }
 export interface IUser extends Document {
     [x: string]: any;
-    user: String;
+    email: String;
     password: string;
     role: String;
 }
@@ -33,26 +33,20 @@ export const userSchema: Schema = new Schema({
     },
     email: {
         type: String, required: true,
-        trim: true, unique: true,
+
+        trim: true,
+
         match: /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
     },
     role: {
         type: String,
         required: true
     },
-    facebookProvider: {
-        type: {
-            id: String,
-            token: String
-        },
-        select: false
-    },
-    googleProvider: {
-        type: {
-            id: String,
-            token: String
-        },
-        select: false
+
+    type: {
+        type: Number,
+        required: true
+
     }
 });
 

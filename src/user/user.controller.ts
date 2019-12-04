@@ -17,7 +17,9 @@ export class UserController {
             const result = await UserModel.create({
                 email: req.body.email,
                 password: req.body.password,
-                role: req.body.role
+                role: req.body.role,
+                type: 1
+
             });
             res.status(200).send({ status: "OK", message: plainToClass(User, result) });
         } catch (error) {
@@ -40,6 +42,51 @@ export class UserController {
                 })
             }
         })(req, res, next)
+    }
+    public async facebook(req: Request, res: Response, next: NextFunction): Promise<void> {
+        console.log("body", req.body);
+        try {
+            const userList = await UserModel.find({ email: req.body.profile.response.id + "@facebook.com" })
+            console.log(userList)
+            let re = null;
+            if (userList.length === 0) {
+                re = await UserModel.create({
+                    email: req.body.profile.response.id + "@facebook.com",
+                    password: "abcdef",
+                    role: req.body.profile.role || "student",
+                    type: 2
+                });
+            } else {
+                re = userList[0];
+            }
+            const token = jwt.sign({ email: re.email }, JWT_SECRET);
+            res.status(200).send({ status: "OK", message: "Success", token, user: re })
+        } catch (error) {
+            res.status(400).json({ status: "Error", message: error.message });
+        }
+    }
+    public async google(req: Request, res: Response, next: NextFunction): Promise<void> {
+        console.log("body", req.body);
+        try {
+            const userList = await UserModel.find({ email: req.body.profile.profile.googleId + "@google.com" })
+            console.log(userList)
+            let re = null;
+            if (userList.length === 0) {
+                re = await UserModel.create({
+                    email: req.body.profile.profile.googleId + "@google.com",
+                    password: "abcdef",
+                    role: req.body.profile.role || "student",
+                    type: 2
+                });
+            } else {
+                re = userList[0];
+            }
+            const token = jwt.sign({ email: re.email }, JWT_SECRET);
+            res.status(200).send({ status: "OK", message: "Success", token, user: re })
+        } catch (error) {
+            console.log(error)
+            res.status(400).json({ status: "Error", message: error.message });
+        }
     }
 
     public async getAll(req: Request, res: Response): Promise<void> {
