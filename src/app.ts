@@ -1,17 +1,21 @@
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
-import cors from "cors";
+import cors, { CorsOptions } from "cors";
 import cookieParser from "cookie-parser";
 import { join } from "path";
 import passport from "passport";
-
+import bodyParser from "body-parser"
 import { MONGODB_URI } from "./utils/secrets";
 import { } from "./user/user.controller";
 import Routes from "./routes";
-
+import session from 'express-session';
+import socketio from 'socket.io';
+import http from 'http';
+import https from 'https';
+import fs from "fs"
+import path from "path"
 class Server {
   public app: express.Application;
-
   constructor() {
     this.app = express();
     this.config();
@@ -24,14 +28,33 @@ class Server {
   }
 
   public config(): void {
+    let allowCrossDomain = function (_req: any, res: any, next: any) {
+      res.header("Access-Control-Allow-Origin", "*");
+      res.header("Access-Control-Allow-Headers", "*");
+      res.header(
+        "Access-Control-Allow-Methods",
+        "GET, POST, OPTIONS, PUT,    PATCH, DELETE",
+      );
+      next();
+    };
+    this.app.use(allowCrossDomain);
     this.app.set("port", process.env.PORT || 3000);
-    this.app.use(express.json());
-    this.app.use(express.urlencoded({ extended: false }));
-    this.app.use(cors());
+    this.app.use(bodyParser.text({ limit: "20MB" }));
     this.app.use(passport.initialize());
     this.app.use(passport.session());
     this.app.use(cookieParser());
     this.app.use(express.static(join(__dirname, "public")));
+    this.app.use(session({
+      secret: "sfd",
+      resave: true,
+      saveUninitialized: true
+    }))
+    this.app.use((req, res, next) => {
+      try {
+        req.body = JSON.parse(req.body);
+      } catch (e) { }
+      next();
+    });
   }
 
   private mongo() {
