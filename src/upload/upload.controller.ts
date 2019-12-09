@@ -1,30 +1,30 @@
 import { NextFunction, Request, Response } from "express";
 import * as jwt from "jsonwebtoken";
-import { UserModel, User } from "./user.model";
+import { UserModel, User } from "./upload.model";
 import { JWT_SECRET } from "../utils/secrets";
 import { plainToClass } from "class-transformer";
 import passport from "passport";
 import "../auth/passport";
 
 export class UserController {
-  public async registerUser(req: Request, res: Response): Promise<void> {
+  public async upload(req: Request, res: Response): Promise<void> {
     console.log("body", req.body);
-    try {
-      const userList = await UserModel.find({ email: req.body.email });
-      console.log(userList);
-      if (userList.length > 0) throw "User already exits";
-      const result = await UserModel.create({
-        email: req.body.email,
-        password: req.body.password,
-        role: req.body.role,
-        type: 1
-      });
-      res
-        .status(200)
-        .send({ status: "OK", message: plainToClass(User, result) });
-    } catch (error) {
-      res.status(400).json({ status: "Error", message: error.message });
-    }
+    // try {
+    //   const userList = await UserModel.find({ email: req.body.email });
+    //   console.log(userList);
+    //   if (userList.length > 0) throw "User already exits";
+    //   const result = await UserModel.create({
+    //     email: req.body.email,
+    //     password: req.body.password,
+    //     role: req.body.role,
+    //     type: 1
+    //   });
+    //   res
+    //     .status(200)
+    //     .send({ status: "OK", message: plainToClass(User, result) });
+    // } catch (error) {
+    //   res.status(400).json({ status: "Error", message: error.message });
+    // }
   }
 
   public async authenticateUser(

@@ -1,4 +1,3 @@
-import { NextFunction, Request, Response } from "express";
 import * as jwt from "jsonwebtoken";
 import { UserModel, User } from "./user.model";
 import { TutorModel, Tutor } from "../tutor/tutor.model"
@@ -8,20 +7,18 @@ import passport from "passport";
 import "../auth/passport";
 
 export class UserController {
-  public async registerUser(req: Request, res: Response): Promise<void> {
+  public async registerUser(req: any, res: any): Promise<void> {
     console.log("body", req.body);
+    const { body } = req;
+    const { email, password, role } = body;
     try {
-      const userList = await UserModel.find({ email: req.body.email });
+      const userList = await UserModel.find({ email });
       if (userList.length > 0) throw "User already exits";
-      const result = await UserModel.create({
-        email: req.body.email,
-        password: req.body.password,
-        role: req.body.role,
-        id: Date.now(),
-        type: 1
-      });
-      const turtor = new Tutor(req.body);
-      const result2 = TutorModel.create(turtor);
+      const id = Date.now();
+      const result = await UserModel.create({ email, password, role, id, type: 1 });
+      if (req.body.role === "tutor") {
+        await TutorModel.create(new Tutor(req.body, id));
+      }
       res
         .status(200)
         .send({ status: "OK", message: plainToClass(User, result) });
@@ -30,35 +27,23 @@ export class UserController {
     }
   }
 
-  public async authenticateUser(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
+  public async authenticateUser(req: any, res: any, next: any): Promise<void> {
     console.log("body", req.body);
-    passport.authenticate("local", function (err, user, info) {
+    passport.authenticate("local", (err, user) => {
       if (err) return next(err);
       if (!user) {
         return res
           .status(401)
           .json({ status: "Error", message: "unauthorized" });
       } else {
-        const token = jwt.sign({ email: user.email }, JWT_SECRET);
-        console.log("token", token);
-        return req.logIn(user, err => {
-          if (err) res.status(200).send({ status: "Error", message: err });
-          res
-            .status(200)
-            .send({ status: "OK", message: "Success", token, user });
-        });
+        const token = jwt.sign(user, JWT_SECRET);
+        res
+          .status(200)
+          .send({ status: "OK", message: "Success", token, user: plainToClass(User, user) });
       }
     })(req, res, next);
   }
-  public async facebook(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
+  public async facebook(req: any, res: any): Promise<void> {
     console.log("body", req.body);
     try {
       const userList = await UserModel.find({
@@ -84,11 +69,7 @@ export class UserController {
       res.status(400).json({ status: "Error", message: error.message });
     }
   }
-  public async google(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
+  public async google(req: any, res: any): Promise<void> {
     console.log("body", req.body);
     try {
       const userList = await UserModel.find({
@@ -116,7 +97,7 @@ export class UserController {
     }
   }
 
-  public async getAll(req: Request, res: Response): Promise<void> {
+  public async getAll(req: any, res: any): Promise<void> {
     const result = await UserModel.find({});
     res.status(200).send({
       status: "OK",

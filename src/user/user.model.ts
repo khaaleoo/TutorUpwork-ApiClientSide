@@ -1,9 +1,11 @@
-import { Document, Schema, Model, model, Error } from "mongoose";
-import { hashSync, compareSync } from "bcrypt";
+import { Schema, model, Model, Document } from "mongoose";
+import { hashSync } from "bcrypt";
 import { Expose, Exclude } from "class-transformer";
 
 @Exclude()
 export class User {
+  @Expose()
+  id: string = ""
   @Expose()
   email: string = "";
   @Expose()
@@ -29,6 +31,7 @@ export const userSchema: Schema = new Schema({
     minlength: [6, "password must has more than 6 characters."]
   },
   email: {
+    unique: true,
     type: String,
     required: true,
     trim: true,
@@ -44,7 +47,7 @@ export const userSchema: Schema = new Schema({
   }
 });
 
-userSchema.pre<IUser>("save", function save(next) {
+userSchema.pre<IUser>("save", function save(this: any, next: () => void) {
   const user = this;
   user.password = hashSync(user.password, 10);
   next();

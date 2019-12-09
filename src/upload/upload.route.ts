@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { UserController } from "./user.controller";
+import { UserController } from "./upload.controller";
 
 export class UserRoutes {
   public router: Router;

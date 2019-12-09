@@ -1,4 +1,4 @@
-import express, { Router } from "express";
+import { Router } from "express";
 const router = Router();
 import { UserRoutes } from "./user/user.route";
 import { HomeRoutes } from "./home/home.route";

@@ -2,6 +2,7 @@ import passport from "passport";
 import passportLocal from "passport-local";
 import { UserModel } from "../user/user.model";
 import passportJwt, { ExtractJwt } from "passport-jwt";
+import { plainToClass } from "class-transformer";
 var User = require('mongoose').model('User');
 const LocalStrategy = passportLocal.Strategy;
 const JwtStrategy = passportJwt.Strategy;
@@ -12,12 +13,12 @@ const local = new LocalStrategy(
     async (email, password, done) => {
         try {
             console.log(email, password)
-            const userList = await UserModel.find({ email: email });
+            const userList = await UserModel.find({ email: email, type: 1 });
             console.log(userList)
             if (userList.length === 0) return done(null, false, { message: "Invalid username." });
             const user = userList[0];
             let ret = await compare(password, user.password);
-            console.log("ret", ret)
+
             if (ret) done(null, user);
             else done(null, false, { message: "Invalid password." });
         } catch (err) {

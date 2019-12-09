@@ -63,8 +63,8 @@
   },
   "devDependencies": {
     "@types/mongoose": "^5.5.32",
-    "@typescript-eslint/eslint-plugin": "^2.9.0",
-    "@typescript-eslint/parser": "^2.9.0",
+    "@typescript-eslint/eslint-plugin": "^2.10.0",
+    "@typescript-eslint/parser": "^2.10.0",
     "chai": "^4.2.0",
     "eslint": "^6.6.0",
     "eslint-config-standard": "^14.1.0",
