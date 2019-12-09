@@ -7,6 +7,7 @@ import passport from "passport";
 import "../auth/passport";
 
 export class UserController {
+<<<<<<< HEAD
   public async registerUser(req: any, res: any): Promise<void> {
     console.log("body", req.body);
     const { body } = req;
@@ -24,6 +25,25 @@ export class UserController {
         .send({ status: "OK", message: plainToClass(User, result) });
     } catch (error) {
       res.status(400).json({ status: "Error", message: error.message });
+=======
+    public async registerUser(req: Request, res: Response): Promise<void> {
+        console.log("body", req.body);
+        try {
+            const userList = await UserModel.find({ email: req.body.email })
+            console.log(userList)
+            if (userList.length > 0) throw "User already exits"
+            const result = await UserModel.create({
+                email: req.body.email,
+                password: req.body.password,
+                role: req.body.role,
+                type: 1
+
+            });
+            res.status(200).send({ status: "OK", message: plainToClass(User, result) });
+        } catch (error) {
+            res.status(400).json({ status: "Error", message: error.message });
+        }
+>>>>>>> a7a4c436b7e1ac789bf5024fe3cc1399a861f706
     }
   }
 

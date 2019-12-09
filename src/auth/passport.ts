@@ -2,8 +2,7 @@ import passport from "passport";
 import passportLocal from "passport-local";
 import { UserModel } from "../user/user.model";
 import passportJwt, { ExtractJwt } from "passport-jwt";
-import { plainToClass } from "class-transformer";
-var User = require('mongoose').model('User');
+
 const LocalStrategy = passportLocal.Strategy;
 const JwtStrategy = passportJwt.Strategy;
 import { compare } from "bcrypt"
