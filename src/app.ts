@@ -4,16 +4,16 @@ import cors, { CorsOptions } from "cors";
 import cookieParser from "cookie-parser";
 import { join } from "path";
 import passport from "passport";
-import bodyParser from "body-parser"
+import bodyParser from "body-parser";
 import { MONGODB_URI } from "./utils/secrets";
 import { } from "./user/user.controller";
 import Routes from "./routes";
-import session from 'express-session';
-import socketio from 'socket.io';
-import http from 'http';
-import https from 'https';
-import fs from "fs"
-import path from "path"
+import session from "express-session";
+import socketio from "socket.io";
+import http from "http";
+import https from "https";
+import fs from "fs";
+import path from "path";
 class Server {
   public app: express.Application;
   constructor() {
@@ -33,7 +33,7 @@ class Server {
       res.header("Access-Control-Allow-Headers", "*");
       res.header(
         "Access-Control-Allow-Methods",
-        "GET, POST, OPTIONS, PUT,    PATCH, DELETE",
+        "GET, POST, OPTIONS, PUT,    PATCH, DELETE"
       );
       next();
     };
@@ -43,12 +43,14 @@ class Server {
     this.app.use(passport.initialize());
     this.app.use(passport.session());
     this.app.use(cookieParser());
-    this.app.use(express.static(join(__dirname, "public")));
-    this.app.use(session({
-      secret: "sfd",
-      resave: true,
-      saveUninitialized: true
-    }))
+    this.app.use(express.static(join(__dirname, "..", "public")));
+    this.app.use(
+      session({
+        secret: "sfd",
+        resave: true,
+        saveUninitialized: true
+      })
+    );
     this.app.use((req, res, next) => {
       try {
         req.body = JSON.parse(req.body);
@@ -69,7 +71,10 @@ class Server {
       console.log("Mongo Connection Disconnected");
       console.log("Trying to reconnect to Mongo ...");
       setTimeout(() => {
-        mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+        mongoose.connect(MONGODB_URI, {
+          useNewUrlParser: true,
+          useUnifiedTopology: true
+        });
       }, 3000);
     });
     connection.on("close", () => {
@@ -80,7 +85,10 @@ class Server {
     });
 
     const run = async () => {
-      await mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+      await mongoose.connect(MONGODB_URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+      });
     };
     run().catch(error => console.error(error));
   }
