@@ -21,17 +21,21 @@ class Contract {
 }
 
 export class Tutor {
+  constructor(body: any) {
+    this.email = body.email;
+  }
+  id: Number = Date.now();
   email: String = "";
   name: String = "";
   intro: String = "";
   price: Number = -1;
   age: Number = -1;
-  gender: String = "";
+  gender: String = "Nam";
   address: Address = new Address();
   avatar: String = "";
   comments: Array<Comment> = [];
   contract: Array<Contract> = [];
-  star: Number = -1;
+  star: Number = 0;
   skills: Array<String> = [];
 }
 

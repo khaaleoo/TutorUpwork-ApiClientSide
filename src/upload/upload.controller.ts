@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import * as jwt from "jsonwebtoken";
 import { UserModel, User } from "./user.model";
-import { TutorModel, Tutor } from "../tutor/tutor.model"
 import { JWT_SECRET } from "../utils/secrets";
 import { plainToClass } from "class-transformer";
 import passport from "passport";
@@ -12,16 +11,14 @@ export class UserController {
     console.log("body", req.body);
     try {
       const userList = await UserModel.find({ email: req.body.email });
+      console.log(userList);
       if (userList.length > 0) throw "User already exits";
       const result = await UserModel.create({
         email: req.body.email,
         password: req.body.password,
         role: req.body.role,
-        id: Date.now(),
         type: 1
       });
-      const turtor = new Tutor(req.body);
-      const result2 = TutorModel.create(turtor);
       res
         .status(200)
         .send({ status: "OK", message: plainToClass(User, result) });
