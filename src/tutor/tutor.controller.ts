@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
-import { TutorModel, Tutor } from "../tutor/tutor.model";
+import { TutorModel, Tutor } from "./tutor.model";
 import { plainToClass } from "class-transformer";
 
-export class HomeController {
+export class TutorController {
   public async getAll(req: Request, res: Response): Promise<void> {
     const result = await TutorModel.find({});
     res.status(200).send({
@@ -18,7 +18,7 @@ export class HomeController {
     });
   }
   public async getOne(req: Request, res: Response): Promise<void> {
-    console.log(req.url)
+    console.log(req.url);
     const result = await TutorModel.find({
       id: req.url.replace("/", "")
     });
