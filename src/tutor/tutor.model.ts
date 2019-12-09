@@ -7,12 +7,14 @@ class Address {
 }
 
 class Comment {
+  id: string = "";
   author: String = "";
   content: String = "";
   datetime: Date = new Date();
 }
 
 class Contract {
+  id: string = ""
   name: String = "";
   beginTime: Date = new Date();
   endTime: Date = new Date();
@@ -30,7 +32,7 @@ export class Tutor {
   address: Address = new Address();
   avatar: String = "";
   comments: Array<Comment> = [];
-  contract: Array<Contract> = [];
+  contracts: Array<Contract> = [];
   star: Number = -1;
   skills: Array<String> = [];
 }
@@ -45,7 +47,7 @@ export interface ITutor extends Document {
   address: Address;
   avatar: String;
   comments: Array<Comment>;
-  contract: Array<Contract>;
+  contracts: Array<Contract>;
   star: Number;
   skills: Array<String>;
 }
@@ -62,9 +64,10 @@ export const tutorSchema: Schema = new Schema({
   gender: { type: String },
   address: { city: Number, district: Number },
   avatar: { type: String },
-  comments: [{ author: String, content: String, datetime: Date }],
-  contract: [
+  comments: [{ id:String, author: String, content: String, datetime: Date }],
+  contracts: [
     {
+      id:String,
       name: String,
       beginTime: Date,
       endTime: Date,

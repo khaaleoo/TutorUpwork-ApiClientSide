@@ -11,15 +11,16 @@ export class HomeController {
     });
   }
   public async getSpecial(req: Request, res: Response): Promise<void> {
-    const result = await TutorModel.find({ star: { $eq: 4.5 } });
+    const result = await TutorModel.find({ star: { $eq: 5 } }).limit(8);
     res.status(200).send({
       status: "OK",
       data: result
     });
   }
   public async getOne(req: Request, res: Response): Promise<void> {
+    console.log(req.url)
     const result = await TutorModel.find({
-      email: req.url.replace("/", "")
+      id: req.url.replace("/", "")
     });
     res.status(200).send({
       status: "OK",

@@ -13,6 +13,6 @@ export class HomeRoutes {
   routes() {
     this.router.get("/all", this.homeController.getAll);
     this.router.get("/special", this.homeController.getSpecial);
-    this.router.get("/:email", this.homeController.getOne);
+    this.router.get("/:id", this.homeController.getOne);
   }
 }
