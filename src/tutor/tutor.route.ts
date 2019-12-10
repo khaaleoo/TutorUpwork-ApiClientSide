@@ -14,5 +14,6 @@ export class TutorRoutes {
     this.router.get("/all", this.tutorController.getAll);
     this.router.get("/special", this.tutorController.getSpecial);
     this.router.get("/:id", this.tutorController.getOne);
+    this.router.post("/filter", this.tutorController.getByFilters);
   }
 }

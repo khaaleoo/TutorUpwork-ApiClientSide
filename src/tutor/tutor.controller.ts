@@ -10,6 +10,33 @@ export class TutorController {
       data: result
     });
   }
+  public async getByFilters(req: Request, res: Response): Promise<void> {
+    const filter = req.body;
+    const param = [];
+    // { skills: { $all: ["HTML", "CSS"] } },
+
+    if (filter.city) {
+      param.push(`{"address.city":${filter.city}}`);
+    }
+    if (filter.district) {
+      param.push(`{"address.district":${filter.district}}`);
+    }
+    if (filter.skills) {
+      param.push(`skills: { $all: ${filter.skills}}`);
+    }
+
+    console.log(filter.price);
+    const result = await TutorModel.find({
+      $and: [
+        { price: { $gt: filter.price[0] } },
+        { price: { $lt: filter.price[1] } }
+      ]
+    });
+    res.status(200).send({
+      status: "OK",
+      data: result
+    });
+  }
   public async getSpecial(req: Request, res: Response): Promise<void> {
     const result = await TutorModel.find({ star: { $eq: 5 } }).limit(8);
     res.status(200).send({
@@ -18,7 +45,6 @@ export class TutorController {
     });
   }
   public async getOne(req: Request, res: Response): Promise<void> {
-    console.log(req.url);
     const result = await TutorModel.find({
       id: req.url.replace("/", "")
     });
