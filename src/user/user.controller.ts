@@ -7,6 +7,15 @@ import passport from "passport";
 import "../auth/passport";
 
 export class UserController {
+  public async getMe(req: any, res: any) {
+    if (req.user.role === "tutor") {
+      const tutorList = await TutorModel.find({ id: req.user.id });
+      console.log(tutorList);
+      res.json(tutorList[0]);
+      return;
+    }
+    res.json({})
+  }
   public async registerUser(req: any, res: any): Promise<void> {
     console.log("body", req.body);
     const { body } = req;
@@ -45,7 +54,7 @@ export class UserController {
             message: "Email hoặc password chưa đúng !"
           });
       } else {
-        const token = jwt.sign(user, JWT_SECRET);
+        const token = jwt.sign(JSON.stringify({ id: user.id }), JWT_SECRET);
         res.status(200).send({
           status: "OK",
           message: "Success",

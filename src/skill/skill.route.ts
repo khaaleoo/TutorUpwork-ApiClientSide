@@ -12,5 +12,6 @@ export class SkillRoutes {
 
   routes() {
     this.router.get("/all", this.skillController.getAll);
+    this.router.get("/", this.skillController.getAll);
   }
 }
