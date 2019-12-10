@@ -23,11 +23,11 @@ class Contract {
 }
 
 export class Tutor {
-  constructor(body: any, id: Number) {
+  constructor(body: any, id: String) {
     this.email = body.email;
     this.id = id;
   }
-  id: Number = Date.now();
+  id: String = Date.now().toString();
   email: String = "";
   name: String = "";
   intro: String = "";
@@ -43,7 +43,7 @@ export class Tutor {
 }
 
 export interface ITutor extends Document {
-  id: Number;
+  id: String;
   email: String;
   name: String;
   intro: String;
@@ -60,7 +60,7 @@ export interface ITutor extends Document {
 
 export const tutorSchema: Schema = new Schema({
   id: {
-    type: Number,
+    type: String
   },
   email: {
     type: String,

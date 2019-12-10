@@ -5,7 +5,7 @@ import { Expose, Exclude } from "class-transformer";
 @Exclude()
 export class User {
   @Expose()
-  id: string = ""
+  id: string = "";
   @Expose()
   email: string = "";
   @Expose()
@@ -21,7 +21,7 @@ export interface IUser extends Document {
 
 export const userSchema: Schema = new Schema({
   id: {
-    type: Number,
+    type: String,
     required: true
   },
   password: {
