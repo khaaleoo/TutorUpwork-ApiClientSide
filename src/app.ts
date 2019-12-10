@@ -9,11 +9,6 @@ import { MONGODB_URI } from "./utils/secrets";
 import { } from "./user/user.controller";
 import Routes from "./routes";
 import session from "express-session";
-import socketio from "socket.io";
-import http from "http";
-import https from "https";
-import fs from "fs";
-import path from "path";
 class Server {
   public app: express.Application;
   constructor() {
@@ -100,6 +95,7 @@ class Server {
         this.app.get("port")
       );
     });
+    console.log(this.app.arg)
   }
 }
 

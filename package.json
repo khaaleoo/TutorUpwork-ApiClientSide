@@ -37,6 +37,7 @@
     "@types/passport-jwt": "^3.0.3",
     "@types/passport-local": "^1.0.33",
     "@types/socket.io": "^2.1.4",
+    "base64-img": "^1.0.4",
     "bcrypt": "^3.0.7",
     "class-transformer": "^0.2.3",
     "cookie-parser": "~1.4.4",
