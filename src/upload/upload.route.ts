@@ -1,20 +1,20 @@
 import { Router } from "express";
-import { UserController } from "./upload.controller";
+import { UploadController } from "./upload.controller";
 
-export class UserRoutes {
+export class UploadRoutes {
   public router: Router;
-  public userController: UserController = new UserController();
+  public uploadController: UploadController = new UploadController();
 
   constructor() {
     this.router = Router();
     this.routes();
   }
-
+  multer = require("multer");
+  upload = this.multer({
+    dest: "./"
+    // you might also want to set some limits: https://github.com/expressjs/multer#limits
+  });
   routes() {
-    this.router.post("/register", this.userController.registerUser);
-    this.router.post("/login", this.userController.authenticateUser);
-    this.router.post("/facebook", this.userController.facebook);
-    this.router.post("/google", this.userController.google);
-    this.router.get("/", this.userController.getAll);
+    this.router.post("/", this.upload.single("file", this.uploadController.upload));
   }
 }

@@ -3,7 +3,7 @@ const router = Router();
 import { UserRoutes } from "./user/user.route";
 import { TutorRoutes } from "./tutor/tutor.route";
 import { SkillRoutes } from "./skill/skill.route";
-
+import { UploadRoutes } from "./upload/upload.route"
 // import { AuthRoutes } from "./auth/auth.route";
 
 const assign: { path: string; controller: Router }[] = [
@@ -18,12 +18,11 @@ const assign: { path: string; controller: Router }[] = [
   {
     path: "/skill",
     controller: new SkillRoutes().router
+  },
+  {
+    path: "/upload",
+    controller: new UploadRoutes().router
   }
-  // {
-  //   // path: "/",
-  //   // controller: new AuthRoutes().router,
-
-  // }
 ];
 
 assign.forEach(({ path, controller }) => {

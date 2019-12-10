@@ -32,7 +32,7 @@ const jwt = new JwtStrategy(
         secretOrKey: "123456"
     },
     async (jwtToken, done) => {
-        const userList = await UserModel.find({ email: jwtToken.email });
+        const userList = await UserModel.find({ id: jwtToken.id });
         if (userList.length === 0) return done(undefined, false);
         return done(undefined, userList[0], jwtToken);
     }
