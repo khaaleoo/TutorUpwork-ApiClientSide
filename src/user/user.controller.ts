@@ -1,6 +1,6 @@
 import * as jwt from "jsonwebtoken";
 import { UserModel, User } from "./user.model";
-import { TutorModel, Tutor } from "../tutor/tutor.model"
+import { TutorModel, Tutor } from "../tutor/tutor.model";
 import { JWT_SECRET } from "../utils/secrets";
 import { plainToClass } from "class-transformer";
 import passport from "passport";
@@ -14,8 +14,14 @@ export class UserController {
     try {
       const userList = await UserModel.find({ email });
       if (userList.length > 0) throw "User already exits";
-      const id = Date.now();
-      const result = await UserModel.create({ email, password, role, id, type: 1 });
+      const id = Date.now().toString();
+      const result = await UserModel.create({
+        email,
+        password,
+        role,
+        id,
+        type: 1
+      });
       if (req.body.role === "tutor") {
         await TutorModel.create(new Tutor(req.body, id));
       }
@@ -34,12 +40,18 @@ export class UserController {
       if (!user) {
         return res
           .status(401)
-          .json({ status: "Error", message: "unauthorized" });
+          .json({
+            status: "Error",
+            message: "Email hoặc password chưa đúng !"
+          });
       } else {
         const token = jwt.sign(user, JWT_SECRET);
-        res
-          .status(200)
-          .send({ status: "OK", message: "Success", token, user: plainToClass(User, user) });
+        res.status(200).send({
+          status: "OK",
+          message: "Success",
+          token,
+          user: plainToClass(User, user)
+        });
       }
     })(req, res, next);
   }
@@ -51,8 +63,10 @@ export class UserController {
       });
       console.log(userList);
       let re = null;
+      const id = Date.now().toString();
       if (userList.length === 0) {
         re = await UserModel.create({
+          id: id,
           email: req.body.profile.response.id + "@facebook.com",
           password: "abcdef",
           role: req.body.profile.role || "student",
@@ -77,8 +91,10 @@ export class UserController {
       });
       console.log(userList);
       let re = null;
+      const id = Date.now().toString();
       if (userList.length === 0) {
         re = await UserModel.create({
+          id: id,
           email: req.body.profile.profile.googleId + "@google.com",
           password: "abcdef",
           role: req.body.profile.role || "student",
