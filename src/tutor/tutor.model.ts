@@ -2,8 +2,8 @@ import { Document, Schema, Model, model, Error } from "mongoose";
 import { Expose, Exclude } from "class-transformer";
 
 class Address {
-  city: Number = -1;
-  district: Number = -1;
+  city: Number = 0;
+  district: Number = 0;
 }
 
 class Comment {
@@ -23,21 +23,27 @@ class Contract {
 }
 
 export class Tutor {
+  constructor(body: any, id: Number) {
+    this.email = body.email;
+    this.id = id;
+  }
+  id: Number = Date.now();
   email: String = "";
   name: String = "";
   intro: String = "";
   price: Number = -1;
   age: Number = -1;
-  gender: String = "";
+  gender: String = "Nam";
   address: Address = new Address();
   avatar: String = "";
   comments: Array<Comment> = [];
-  contracts: Array<Contract> = [];
-  star: Number = -1;
+  contract: Array<Contract> = [];
+  star: Number = 0;
   skills: Array<String> = [];
 }
 
 export interface ITutor extends Document {
+  id: Number;
   email: String;
   name: String;
   intro: String;
@@ -53,6 +59,9 @@ export interface ITutor extends Document {
 }
 
 export const tutorSchema: Schema = new Schema({
+  id: {
+    type: Number,
+  },
   email: {
     type: String,
     trim: true
