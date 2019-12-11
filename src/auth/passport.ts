@@ -2,7 +2,8 @@ import passport from "passport";
 import passportLocal from "passport-local";
 import { UserModel } from "../user/user.model";
 import passportJwt, { ExtractJwt } from "passport-jwt";
-var User = require('mongoose').model('User');
+import { JWT_SECRET } from "../utils/secrets";
+
 const LocalStrategy = passportLocal.Strategy;
 const JwtStrategy = passportJwt.Strategy;
 import { compare } from "bcrypt"
@@ -12,12 +13,11 @@ const local = new LocalStrategy(
     async (email, password, done) => {
         try {
             console.log(email, password)
-            const userList = await UserModel.find({ email: email });
+            const userList = await UserModel.find({ email: email, type: 1 });
             console.log(userList)
             if (userList.length === 0) return done(null, false, { message: "Invalid username." });
             const user = userList[0];
             let ret = await compare(password, user.password);
-            console.log("ret", ret)
             if (ret) done(null, user);
             else done(null, false, { message: "Invalid password." });
         } catch (err) {
@@ -28,11 +28,12 @@ const local = new LocalStrategy(
 
 const jwt = new JwtStrategy(
     {
-        jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-        secretOrKey: "123456"
+        jwtFromRequest: ExtractJwt.fromHeader("secret_token"),
+        secretOrKey: JWT_SECRET
     },
     async (jwtToken, done) => {
-        const userList = await UserModel.find({ email: jwtToken.email });
+        console.log("dxcfvgbhnvgbhn", jwtToken);
+        const userList = await UserModel.find({ id: jwtToken.id });
         if (userList.length === 0) return done(undefined, false);
         return done(undefined, userList[0], jwtToken);
     }
