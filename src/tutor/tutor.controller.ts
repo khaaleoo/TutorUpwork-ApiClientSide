@@ -1,9 +1,6 @@
-import { NextFunction, Request, Response } from "express";
-import { TutorModel, Tutor } from "./tutor.model";
-import { plainToClass } from "class-transformer";
-
+import { TutorModel } from './tutor.model';
 export class TutorController {
-  public updateOne(req: any, res: Response) {
+  public updateOne(req: any, res: any) {
     const { body } = req;
     console.log(body);
     console.log(req.user.id);
@@ -20,14 +17,14 @@ export class TutorController {
       }
     );
   }
-  public async getAll(req: Request, res: Response): Promise<void> {
+  public async getAll(req: Request, res: any): Promise<void> {
     const result = await TutorModel.find({});
     res.status(200).send({
       status: "OK",
       data: result
     });
   }
-  public async getByFilters(req: Request, res: Response): Promise<void> {
+  public async getByFilters(req: any, res: any): Promise<void> {
     const filter = req.body;
     let skill = {};
     if (filter.skills && filter.skills.length !== 0) {
@@ -58,14 +55,14 @@ export class TutorController {
       data: result
     });
   }
-  public async getSpecial(req: Request, res: Response): Promise<void> {
+  public async getSpecial(req: any, res: any): Promise<void> {
     const result = await TutorModel.find({ star: { $eq: 5 } }).limit(8);
     res.status(200).send({
       status: "OK",
       data: result
     });
   }
-  public async getOne(req: Request, res: Response): Promise<void> {
+  public async getOne(req: any, res: any): Promise<void> {
     const result = await TutorModel.find({
       id: req.url.replace("/", "")
     });
