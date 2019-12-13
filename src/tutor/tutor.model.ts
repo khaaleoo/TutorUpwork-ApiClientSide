@@ -7,8 +7,7 @@ class Address {
 }
 
 class Comment {
-  id: String = "";
-  author: String = "";
+  idAuthor: String = "";
   content: String = "";
   datetime: Date = new Date();
 }
