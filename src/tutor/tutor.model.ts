@@ -7,19 +7,10 @@ class Address {
 }
 
 class Comment {
-  id: string = "";
+  id: String = "";
   author: String = "";
   content: String = "";
   datetime: Date = new Date();
-}
-
-class Contract {
-  id: string = "";
-  name: String = "";
-  beginTime: Date = new Date();
-  endTime: Date = new Date();
-  totalPrice: Number = -1;
-  status: String = "";
 }
 
 export class Tutor {
@@ -27,7 +18,7 @@ export class Tutor {
     this.email = body.email;
     this.id = body.id;
     this.name = body.name || "";
-    this.avatar = body.avatar || ""
+    this.avatar = body.avatar || "";
   }
   id: String = Date.now().toString();
   email: String = "";
@@ -39,9 +30,10 @@ export class Tutor {
   address: Address = new Address();
   avatar: String = "";
   comments: Array<Comment> = [];
-  contract: Array<Contract> = [];
+  contract: Array<String> = [];
   star: Number = 0;
   skills: Array<String> = [];
+  successRate: Number = 0;
 }
 
 export interface ITutor extends Document {
@@ -55,9 +47,10 @@ export interface ITutor extends Document {
   address: Address;
   avatar: String;
   comments: Array<Comment>;
-  contracts: Array<Contract>;
+  contracts: Array<String>;
   star: Number;
   skills: Array<String>;
+  successRate: Number;
 }
 
 export const tutorSchema: Schema = new Schema({
@@ -76,18 +69,10 @@ export const tutorSchema: Schema = new Schema({
   address: { city: Number, district: Number },
   avatar: { type: String },
   comments: [{ id: String, author: String, content: String, datetime: Date }],
-  contracts: [
-    {
-      id: String,
-      name: String,
-      beginTime: Date,
-      endTime: Date,
-      totalPrice: Number,
-      status: String
-    }
-  ],
+  contracts: [String],
   star: { type: Number },
-  skills: [String]
+  skills: [String],
+  successRate: Number
 });
 
 export const TutorModel: Model<ITutor> = model<ITutor>("Tutor", tutorSchema);
