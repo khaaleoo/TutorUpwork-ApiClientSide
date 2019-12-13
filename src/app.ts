@@ -6,7 +6,7 @@ import { join } from "path";
 import passport from "passport";
 import bodyParser from "body-parser";
 import { MONGODB_URI } from "./utils/secrets";
-import { } from "./user/user.controller";
+import {} from "./user/user.controller";
 import Routes from "./routes";
 import session from "express-session";
 class Server {
@@ -23,7 +23,7 @@ class Server {
   }
 
   public config(): void {
-    let allowCrossDomain = function (_req: any, res: any, next: any) {
+    let allowCrossDomain = function(_req: any, res: any, next: any) {
       res.header("Access-Control-Allow-Origin", "*");
       res.header("Access-Control-Allow-Headers", "*");
       res.header(
@@ -49,7 +49,7 @@ class Server {
     this.app.use((req, res, next) => {
       try {
         req.body = JSON.parse(req.body);
-      } catch (e) { }
+      } catch (e) {}
       next();
     });
   }
@@ -95,7 +95,7 @@ class Server {
         this.app.get("port")
       );
     });
-    console.log(this.app.arg)
+    console.log(this.app.arg);
   }
 }
 
