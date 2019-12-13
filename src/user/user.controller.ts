@@ -7,6 +7,7 @@ import passport from "passport";
 import "../auth/passport";
 
 export class UserController {
+
   public async getMe(req: any, res: any) {
     if (req.user.role === "tutor") {
       const tutorList = await TutorModel.find({ id: req.user.id });
@@ -32,7 +33,7 @@ export class UserController {
         type: 1
       });
       if (req.body.role === "tutor") {
-        await TutorModel.create(new Tutor(req.body, id));
+        await TutorModel.create(new Tutor({ ...req.body, id }));
       }
       res
         .status(200)
@@ -64,63 +65,107 @@ export class UserController {
       }
     })(req, res, next);
   }
-  public async facebook(req: any, res: any): Promise<void> {
-    console.log("body", req.body);
-    try {
-      const userList = await UserModel.find({
-        email: req.body.profile.response.id + "@facebook.com"
+  public async verfify(req: any, res: any) {
+    const userList = await UserModel.find({
+      id: req.body.id
+    });
+    if (userList.length > 0) {
+      const user = userList[0];
+      const token = jwt.sign(JSON.stringify({ id: user.id }), JWT_SECRET);
+      res.status(200).send({
+        status: "OK",
+        message: "Success",
+        token,
+        user: plainToClass(User, user)
       });
-      console.log(userList);
-      let re = null;
-      const id = Date.now().toString();
-      if (userList.length === 0) {
-        re = await UserModel.create({
-          id: id,
-          email: req.body.profile.response.id + "@facebook.com",
-          password: "abcdef",
-          role: req.body.profile.role || "student",
-          type: 2
-        });
-      } else {
-        re = userList[0];
-      }
-      const token = jwt.sign({ email: re.email }, JWT_SECRET);
+    }
+    else
       res
         .status(200)
-        .send({ status: "OK", message: "Success", token, user: re });
+        .send({ status: "OK", message: "Success", user: false })
+  }
+  public async facebook(req: any, res: any): Promise<void> {
+    console.log(req.body)
+    const { body } = req;
+    try {
+      const user = {
+        id: body.id,
+        email: body.id + body.email,
+        password: "123456",
+        role: body.role,
+        type: 2
+      }
+      await UserModel.create(user);
+      const token = jwt.sign({ id: body.id }, JWT_SECRET);
+      if (body.role === "tutor") {
+        await TutorModel.create(new Tutor(body));
+      }
+      res.status(200).send({
+        status: "OK",
+        message: "Success",
+        token,
+        user: plainToClass(User, user)
+      });
     } catch (error) {
-      res.status(400).json({ status: "Error", message: error.message });
+      console.error(error)
+      res.status(400).json({ status: "ERROR", message: error.message });
     }
   }
   public async google(req: any, res: any): Promise<void> {
-    console.log("body", req.body);
+    console.log(req.body)
+    const { body } = req;
     try {
-      const userList = await UserModel.find({
-        email: req.body.profile.profile.googleId + "@google.com"
-      });
-      console.log(userList);
-      let re = null;
-      const id = Date.now().toString();
-      if (userList.length === 0) {
-        re = await UserModel.create({
-          id: id,
-          email: req.body.profile.profile.googleId + "@google.com",
-          password: "abcdef",
-          role: req.body.profile.role || "student",
-          type: 2
-        });
-      } else {
-        re = userList[0];
+      const user = {
+        id: body.id,
+        email: body.id + body.email,
+        password: "123456",
+        role: body.role,
+        type: 2
       }
-      const token = jwt.sign({ email: re.email }, JWT_SECRET);
-      res
-        .status(200)
-        .send({ status: "OK", message: "Success", token, user: re });
+      await UserModel.create(user);
+      const token = jwt.sign({ id: body.id }, JWT_SECRET);
+      if (body.role === "tutor") {
+        await TutorModel.create(new Tutor(body));
+      }
+      res.status(200).send({
+        status: "OK",
+        message: "Success",
+        token,
+        user: plainToClass(User, user)
+      });
     } catch (error) {
-      console.log(error);
-      res.status(400).json({ status: "Error", message: error.message });
+      res.status(400).json({ status: "ERROR", message: error.message });
     }
   }
+  // public async google(req: any, res: any): Promise<void> {
+  //   console.log("body", req.body);
+  //   try {
+  //     const userList = await UserModel.find({
+  //       email: req.body.profile.profile.googleId + "@google.com"
+  //     });
+  //     console.log(userList);
+  //     let re = null;
+  //     const id = Date.now().toString();
+  //     if (userList.length === 0) {
+  //       re = await UserModel.create({
+  //         id: id,
+  //         email: req.body.profile.profile.googleId + "@google.com",
+  //         password: "abcdef",
+  //         role: req.body.profile.role || "student",
+  //         type: 2
+  //       });
+  //     } else {
+  //       re = userList[0];
+  //     }
+  //     const token = jwt.sign({ email: re.email }, JWT_SECRET);
+  //     res
+  //       .status(200)
+  //       .send({ status: "OK", message: "Success", token, user: re });
+  //   } catch (error) {
+  //     console.log(error);
+  //     res.status(400).json({ status: "Error", message: error.message });
+  //   }
+  // }
 
   public async getAll(req: any, res: any): Promise<void> {
     const result = await UserModel.find({});

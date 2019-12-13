@@ -31,7 +31,6 @@ export const userSchema: Schema = new Schema({
     minlength: [6, "password must has more than 6 characters."]
   },
   email: {
-    unique: true,
     type: String,
     required: true,
     trim: true,

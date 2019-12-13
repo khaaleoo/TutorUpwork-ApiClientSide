@@ -23,9 +23,11 @@ class Contract {
 }
 
 export class Tutor {
-  constructor(body: any, id: String) {
+  constructor(body: any) {
     this.email = body.email;
-    this.id = id;
+    this.id = body.id;
+    this.name = body.name || "";
+    this.avatar = body.avatar || ""
   }
   id: String = Date.now().toString();
   email: String = "";
