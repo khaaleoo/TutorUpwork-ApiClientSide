@@ -1,4 +1,7 @@
-import { TutorModel } from './tutor.model';
+import { TutorModel } from "./tutor.model";
+import { ContractModel } from "../contract/contract.model";
+import { StudentModel } from "../student/student.model";
+
 export class TutorController {
   public updateOne(req: any, res: any) {
     const { body } = req;
@@ -66,6 +69,26 @@ export class TutorController {
     const result = await TutorModel.find({
       id: req.url.replace("/", "")
     });
+
+    for (let i = 0; i < result[0].contracts.length; i += 1) {
+      const contractsRes = await ContractModel.find({
+        id: result[0].contracts[i]
+      });
+
+      if (contractsRes[0] !== undefined) {
+        const studentRes = await StudentModel.find({
+          id: contractsRes[0].studentId
+        });
+        const temp = contractsRes[0].toObject();
+        if (studentRes[0] !== undefined) {
+          temp.student = studentRes[0].toObject();
+        }
+        result[0].contracts[i] = temp;
+      } else {
+        result[0].contracts[i] = "error";
+      }
+    }
+
     res.status(200).send({
       status: "OK",
       data: result

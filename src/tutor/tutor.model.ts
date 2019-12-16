@@ -67,7 +67,7 @@ export const tutorSchema: Schema = new Schema({
   gender: { type: String },
   address: { city: Number, district: Number },
   avatar: { type: String },
-  comments: [{ id: String, author: String, content: String, datetime: Date }],
+  comments: [{ idAuthor: String, content: String, datetime: Date }],
   contracts: [String],
   star: { type: Number },
   skills: [String],
