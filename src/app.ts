@@ -95,7 +95,6 @@ class Server {
         this.app.get("port")
       );
     });
-    console.log(this.app.arg);
   }
 }
 
