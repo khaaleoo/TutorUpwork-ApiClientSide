@@ -1,13 +1,13 @@
 import * as jwt from "jsonwebtoken";
 import { UserModel, User } from "./user.model";
 import { TutorModel, Tutor } from "../tutor/tutor.model";
+import { StudentModel, Student } from "../student/student.model";
 import { JWT_SECRET } from "../utils/secrets";
 import { plainToClass } from "class-transformer";
 import passport from "passport";
 import "../auth/passport";
 
 export class UserController {
-
   public async getMe(req: any, res: any) {
     if (req.user.role === "tutor") {
       const tutorList = await TutorModel.find({ id: req.user.id });
@@ -15,7 +15,7 @@ export class UserController {
       res.json(tutorList[0]);
       return;
     }
-    res.json({})
+    res.json({});
   }
   public async registerUser(req: any, res: any): Promise<void> {
     console.log("body", req.body);
@@ -34,6 +34,8 @@ export class UserController {
       });
       if (req.body.role === "tutor") {
         await TutorModel.create(new Tutor({ ...req.body, id }));
+      } else {
+        await StudentModel.create(new Student({ ...req.body, id }));
       }
       res
         .status(200)
@@ -48,12 +50,10 @@ export class UserController {
     passport.authenticate("local", (err, user) => {
       if (err) return next(err);
       if (!user) {
-        return res
-          .status(401)
-          .json({
-            status: "Error",
-            message: "Email hoặc password chưa đúng !"
-          });
+        return res.status(401).json({
+          status: "Error",
+          message: "Email hoặc password chưa đúng !"
+        });
       } else {
         const token = jwt.sign(JSON.stringify({ id: user.id }), JWT_SECRET);
         res.status(200).send({
@@ -78,14 +78,11 @@ export class UserController {
         token,
         user: plainToClass(User, user)
       });
-    }
-    else
-      res
-        .status(200)
-        .send({ status: "OK", message: "Success", user: false })
+    } else
+      res.status(200).send({ status: "OK", message: "Success", user: false });
   }
   public async facebook(req: any, res: any): Promise<void> {
-    console.log(req.body)
+    console.log(req.body);
     const { body } = req;
     try {
       const user = {
@@ -94,11 +91,13 @@ export class UserController {
         password: "123456",
         role: body.role,
         type: 2
-      }
+      };
       await UserModel.create(user);
       const token = jwt.sign({ id: body.id }, JWT_SECRET);
       if (body.role === "tutor") {
         await TutorModel.create(new Tutor(body));
+      } else {
+        await StudentModel.create(new Student(body));
       }
       res.status(200).send({
         status: "OK",
@@ -107,12 +106,12 @@ export class UserController {
         user: plainToClass(User, user)
       });
     } catch (error) {
-      console.error(error)
+      console.error(error);
       res.status(400).json({ status: "ERROR", message: error.message });
     }
   }
   public async google(req: any, res: any): Promise<void> {
-    console.log(req.body)
+    console.log(req.body);
     const { body } = req;
     try {
       const user = {
@@ -121,11 +120,13 @@ export class UserController {
         password: "123456",
         role: body.role,
         type: 2
-      }
+      };
       await UserModel.create(user);
       const token = jwt.sign({ id: body.id }, JWT_SECRET);
       if (body.role === "tutor") {
         await TutorModel.create(new Tutor(body));
+      } else {
+        await StudentModel.create(new Student(body));
       }
       res.status(200).send({
         status: "OK",

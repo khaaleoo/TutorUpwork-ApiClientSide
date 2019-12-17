@@ -1,10 +1,11 @@
-import { NextFunction, Request, Response } from "express";
-import { plainToClass } from "class-transformer";
+/* eslint-disable no-prototype-builtins */
 const config = require("config");
+import { ContractModel } from "../contract/contract.model";
 
 export class SandBoxController {
-  public sortObject = (o: any) => {
-    var sorted: any = {},
+  idContract: String = "";
+  sortObject = (o: any) => {
+    let sorted: any = {},
       key,
       a = [];
 
@@ -13,38 +14,39 @@ export class SandBoxController {
         a.push(key);
       }
     }
-
     a.sort();
-
     for (key = 0; key < a.length; key++) {
       sorted[a[key]] = o[a[key]];
     }
     return sorted;
   };
 
-  public createPaymentUrl = (req: any, res: Response) => {
-    var ipAddr =
+  public createPaymentUrl = (req: any, res: any) => {
+    this.idContract = req.body.idContract.id;
+
+    console.log("id ne", this.idContract);
+    const ipAddr =
       req.headers["x-forwarded-for"] ||
       req.connection.remoteAddress ||
       req.socket.remoteAddress ||
       req.connection.socket.remoteAddress;
     console.log(ipAddr);
-    var dateFormat = require("dateformat");
+    const dateFormat = require("dateformat");
 
-    var tmnCode = config.get("vnp_TmnCode");
-    var secretKey = config.get("vnp_HashSecret");
-    var vnpUrl = config.get("vnp_Url");
-    var returnUrl = config.get("vnp_ReturnUrl");
+    const tmnCode = config.get("vnp_TmnCode");
+    const secretKey = config.get("vnp_HashSecret");
+    let vnpUrl = config.get("vnp_Url");
+    const returnUrl = config.get("vnp_ReturnUrl");
 
-    var date = new Date();
+    const date = new Date();
 
-    var createDate = dateFormat(date, "yyyymmddHHmmss");
-    var orderId = dateFormat(date, "HHmmss");
-    var amount = req.body.vnp_Amount;
-    var bankCode = req.body.vnp_BankCode;
+    const createDate = dateFormat(date, "yyyymmddHHmmss");
+    const orderId = dateFormat(date, "HHmmss");
+    const amount = req.body.vnp_Amount;
+    const bankCode = req.body.vnp_BankCode;
 
-    var currCode = "VND";
-    var vnp_Params: any = {};
+    const currCode = "VND";
+    let vnp_Params: any = {};
     vnp_Params["vnp_Version"] = 2;
     vnp_Params["vnp_Command"] = "pay";
     vnp_Params["vnp_TmnCode"] = tmnCode;
@@ -65,13 +67,13 @@ export class SandBoxController {
 
     vnp_Params = this.sortObject(vnp_Params);
 
-    var querystring = require("qs");
-    var signData =
+    const querystring = require("qs");
+    const signData =
       secretKey + querystring.stringify(vnp_Params, { encode: false });
 
-    var sha256 = require("sha256");
+    const sha256 = require("sha256");
 
-    var secureHash = sha256(signData);
+    const secureHash = sha256(signData);
     vnp_Params["vnp_SecureHashType"] = "SHA256";
     vnp_Params["vnp_SecureHash"] = secureHash;
     vnpUrl += "?" + querystring.stringify(vnp_Params, { encode: true });
@@ -79,28 +81,31 @@ export class SandBoxController {
     res.status(200).json({ code: "00", data: vnpUrl });
   };
 
-  public checkData = (req: any, res: Response) => {
-    var vnp_Params = req.query;
+  public checkData = async (req: any, res: any) => {
+    let vnp_Params = req.query;
     console.log(vnp_Params);
-    var secureHash = vnp_Params["vnp_SecureHash"];
+    const secureHash = vnp_Params["vnp_SecureHash"];
     delete vnp_Params["vnp_SecureHash"];
     delete vnp_Params["vnp_SecureHashType"];
     vnp_Params = this.sortObject(vnp_Params);
-    var config = require("config");
-    var secretKey = config.get("vnp_HashSecret");
-    var querystring = require("qs");
-    var signData =
+    const config = require("config");
+    const secretKey = config.get("vnp_HashSecret");
+    const querystring = require("qs");
+    const signData =
       secretKey + querystring.stringify(vnp_Params, { encode: false });
 
-    var sha256 = require("sha256");
-
-    var checkSum = sha256(signData);
-
+    const sha256 = require("sha256");
+    const checkSum = sha256(signData);
     if (secureHash === checkSum) {
-      var orderId = vnp_Params["vnp_TxnRef"];
-      var rspCode = vnp_Params["vnp_ResponseCode"];
       //Kiem tra du lieu co hop le khong, cap nhat trang thai don hang va gui ket qua cho VNPAY theo dinh dang duoi
-      res.status(200).json({ RspCode: "00", Message: "success" });
+
+      await ContractModel.update(
+        { id: this.idContract },
+        { $set: { status: "Đã thanh toán" } }
+      );
+      console.log("update..", this.idContract);
+      res.redirect("http://localhost:8000/student");
+
       // ghi xuong dv
       // tra ve thong bao
     } else {

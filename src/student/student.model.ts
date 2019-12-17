@@ -5,6 +5,22 @@ class Address {
   city: Number = 0;
   district: Number = 0;
 }
+export class Student {
+  constructor(body: any) {
+    this.email = body.email;
+    this.id = body.id;
+    this.name = body.name || "Chưa cập nhật";
+    this.avatar = body.avatar || "";
+  }
+  id: String = "";
+  email: String = "";
+  name: String = "";
+  gender: String = "";
+  birthday: Date = new Date();
+  address: Address = new Address();
+  avatar: String = "";
+  contracts: String[] = [];
+}
 
 export interface IStudent extends Document {
   id: String;
