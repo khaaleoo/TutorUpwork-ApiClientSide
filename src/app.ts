@@ -1,29 +1,50 @@
-import express, { Request, Response, NextFunction } from "express";
+import express from "express";
 import mongoose from "mongoose";
-import cors, { CorsOptions } from "cors";
 import cookieParser from "cookie-parser";
 import { join } from "path";
 import passport from "passport";
 import bodyParser from "body-parser";
 import { MONGODB_URI } from "./utils/secrets";
-import {} from "./user/user.controller";
+import { } from "./user/user.controller";
 import Routes from "./routes";
 import session from "express-session";
+import socket from "socket.io";
+
+import http from "http"
 class Server {
   public app: express.Application;
+  public server: http.Server;
+  public socketIO: any;
+
+  public sockets: any = {};
+  public requests: any = {};
+
+
+
   constructor() {
     this.app = express();
     this.config();
     this.routes();
     this.mongo();
+    this.ServeSocket();
   }
-
+  public ServeSocket() {
+    this.socketIO = socket(this.server);
+    this.socketIO.on("connection", (socket: any) => {
+      console.log("New client connected");
+      socket.on("disconnect", () => console.log("Client disconnected"));
+      socket.on("hello", (id: string) => {
+        this.sockets[id] = socket;
+        console.log(this.sockets);
+      })
+    });
+  }
   public routes(): void {
     this.app.use(Routes);
   }
 
   public config(): void {
-    let allowCrossDomain = function(_req: any, res: any, next: any) {
+    let allowCrossDomain = function (_req: any, res: any, next: any) {
       res.header("Access-Control-Allow-Origin", "*");
       res.header("Access-Control-Allow-Headers", "*");
       res.header(
@@ -49,9 +70,12 @@ class Server {
     this.app.use((req, res, next) => {
       try {
         req.body = JSON.parse(req.body);
-      } catch (e) {}
+      } catch (e) {
+        //console.log(e);
+      }
       next();
     });
+    this.server = http.createServer(this.app);
   }
 
   private mongo() {
@@ -89,13 +113,12 @@ class Server {
   }
 
   public start() {
-    this.app.listen(this.app.get("port"), () => {
+    this.server.listen(this.app.get("port"), () => {
       console.log(
         "  API is running at http://localhost:%d",
         this.app.get("port")
       );
     });
-    console.log(this.app.arg);
   }
 }
 
