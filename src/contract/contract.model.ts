@@ -36,7 +36,7 @@ export const contractSchema: Schema = new Schema({
   status: String
 });
 
-export const TutorModel: Model<IContract> = model<IContract>(
+export const ContractModel: Model<IContract> = model<IContract>(
   "Contract",
   contractSchema
 );
