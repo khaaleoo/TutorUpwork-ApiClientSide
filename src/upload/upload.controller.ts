@@ -1,5 +1,5 @@
 import { join } from "path";
-import { TutorModel, Tutor } from '../tutor/tutor.model';
+import { TutorModel } from '../tutor/tutor.model';
 var base64Img = require('base64-img');
 import fs from "fs"
 export class UploadController {
