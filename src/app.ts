@@ -13,13 +13,11 @@ import socket from "socket.io";
 import http from "http"
 class Server {
   public app: express.Application;
-  public server: http.Server;
+  public server!: http.Server;
   public socketIO: any;
 
   public sockets: any = {};
   public requests: any = {};
-
-
 
   constructor() {
     this.app = express();
@@ -34,8 +32,34 @@ class Server {
       console.log("New client connected");
       socket.on("disconnect", () => console.log("Client disconnected"));
       socket.on("hello", (id: string) => {
+        console.log("tutor online", id)
         this.sockets[id] = socket;
-        console.log(this.sockets);
+        if (this.requests[id]) {
+          this.requests[id].forEach((room: string) => {
+            socket.join(room);
+          });
+        }
+      })
+      socket.on("start", (id: string, idClient: string, mess: string) => {
+        console.log(id, idClient);
+        const room = Math.random();
+        socket.join(room);
+        if (this.sockets[idClient]) {// nếu có đối phương thì add vô room
+          console.log("có thể chat")
+          this.sockets[idClient].join(room);
+          socket.in(room).emit("want", id);
+          socket.in(room).emit("chatchit", id, mess);
+          socket.nsp.in(room).emit("ready", room);
+        }
+        else { // còn không để request 
+          console.log("off r")
+          if (!this.requests[idClient]) this.requests[idClient] = [];
+          this.requests[idClient].push(idClient);
+        }
+      })
+      socket.on("chat", (room: number, content: string) => {
+        console.log("chat", room, content)
+        socket.in(room).emit("chatchit", room, content)
       })
     });
   }
