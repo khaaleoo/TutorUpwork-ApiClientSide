@@ -94,4 +94,13 @@ export class TutorController {
       data: result
     });
   }
+  public async comment(req: any, res: any): Promise<any> {
+    const { body } = req;
+    const { authorId, content, datetime, tutorId } = body;
+    await TutorModel.update(
+      { id: tutorId },
+      { $push: { comment: { authorId, content, datetime } } }
+    );
+    res.status(200).json({ Status: "OK", comment: { content } });
+  }
 }
