@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { StudentController } from "./student.controller";
-import passport = require("passport");
 
 export class StudentRoutes {
   public router: Router;
