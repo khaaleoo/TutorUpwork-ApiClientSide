@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { ConversationController } from "./conversation.controller";
+import { ConversationController } from './conversation.controller';
 import passport = require("passport");
 
-export class TutorRoutes {
+export class ConversationRoutes {
   public router: Router;
-  public conversationController: ConversationController = new ConversationController();
+  public converController: ConversationController = new ConversationController();
 
   constructor() {
     this.router = Router();
@@ -12,6 +12,10 @@ export class TutorRoutes {
   }
 
   routes() {
-
+    this.router.get(
+      "/",
+      passport.authenticate("jwt", { session: false }),
+      this.converController.loadConversations
+    );
   }
 }

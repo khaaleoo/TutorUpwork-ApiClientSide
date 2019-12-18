@@ -9,7 +9,7 @@ import { } from "./user/user.controller";
 import Routes from "./routes";
 import session from "express-session";
 import socket from "socket.io";
-
+import { ConversationService } from './conversation/conversation.service';
 import http from "http"
 class Server {
   public app: express.Application;
@@ -18,6 +18,7 @@ class Server {
 
   public sockets: any = {};
   public requests: any = {};
+  public rooms: any = {};
 
   constructor() {
     this.app = express();
@@ -32,6 +33,7 @@ class Server {
       console.log("New client connected");
       socket.on("disconnect", () => console.log("Client disconnected"));
       socket.on("hello", (id: string) => {
+        socket.myId = id;
         console.log("tutor online", id)
         this.sockets[id] = socket;
         if (this.requests[id]) {
@@ -40,12 +42,15 @@ class Server {
           });
         }
       })
-      socket.on("start", (id: string, idClient: string, mess: string) => {
-        console.log(id, idClient);
+      socket.on("start", async (id: string, idClient: string, mess: string) => {
+        console.log(id, idClient, mess);
         const room = Math.random();
         socket.join(room);
-        if (this.sockets[idClient]) {// nếu có đối phương thì add vô room
-          console.log("có thể chat")
+        socket.myId = id;
+        const idCon = await ConversationService.creatrOrUpdate(id, idClient, mess);
+        this.rooms[room] = { idCon }
+        if (this.sockets[idClient]) {  // nếu có đối phương thì add vô room
+          console.log("có thể chat");
           this.sockets[idClient].join(room);
           socket.in(room).emit("want", id);
           socket.in(room).emit("chatchit", id, mess);
@@ -59,7 +64,13 @@ class Server {
       })
       socket.on("chat", (room: number, content: string) => {
         console.log("chat", room, content)
-        socket.in(room).emit("chatchit", room, content)
+        socket.in(room).emit("want");
+        socket.in(room).emit("chatchit", room, content);
+        const myRoom = this.rooms[room];
+        if (myRoom) {
+          ConversationService.addMessage(myRoom.idCon, socket.myId, content)
+        }
+        else console.log("Không tìm thấy room này");
       })
     });
   }
