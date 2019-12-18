@@ -11,6 +11,7 @@ export class Contract {
   totalHour: Number = 0;
   totalPrice: Number = 0;
   status: String = "";
+  skills: String[] = [];
 }
 
 export interface IContract extends Document {
@@ -23,6 +24,7 @@ export interface IContract extends Document {
   totalHour: Number;
   totalPrice: Number;
   status: String;
+  skills: String[];
 }
 export const contractSchema: Schema = new Schema({
   id: String,
@@ -33,7 +35,8 @@ export const contractSchema: Schema = new Schema({
   pricePerHour: Number,
   totalHour: Number,
   totalPrice: Number,
-  status: String
+  status: String,
+  skills: [String]
 });
 
 export const ContractModel: Model<IContract> = model<IContract>(

@@ -12,5 +12,6 @@ export class ContractRoutes {
 
   routes() {
     this.router.post("/new", this.contractController.createNewContract);
+    this.router.post("/end", this.contractController.endContract);
   }
 }
