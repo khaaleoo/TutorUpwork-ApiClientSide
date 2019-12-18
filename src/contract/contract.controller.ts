@@ -7,6 +7,7 @@ export class ContractController {
   public async createNewContract(req: any, res: any): Promise<any> {
     const { body } = req;
     const id = Date.now().toString();
+    const reportInfo: String = "";
     const {
       studentId,
       tutorId,
@@ -29,7 +30,8 @@ export class ContractController {
       totalHour,
       totalPrice,
       status,
-      skills
+      skills,
+      reportInfo
     });
 
     await TutorModel.update({ id: tutorId }, { $push: { contracts: id } });
@@ -39,13 +41,25 @@ export class ContractController {
   }
 
   public async endContract(req: any, res: any): Promise<any> {
+    console.log("end", req.body.id);
     const { body } = req;
     const { id } = body;
-    console.log(body);
+    const endTime = new Date();
     await ContractModel.updateOne(
       { id: id },
-      { $set: { status: "Hoàn thành" } }
+      { $set: { status: "Hoàn thành", endTime: endTime } }
     );
-    res.status(200).json({ Status: "OK", idContract: id });
+    res.status(200).json({ Status: "OK", idContract: id, endTime: endTime });
+  }
+  public async reportContract(req: any, res: any): Promise<any> {
+    const { body } = req;
+    const { id, reportInfo } = body;
+    await ContractModel.updateOne(
+      { id: id },
+      { $set: { status: "Đang khiếu nại", reportInfo: reportInfo } }
+    );
+    res
+      .status(200)
+      .json({ Status: "OK", idContract: id, reportInfo: reportInfo });
   }
 }
