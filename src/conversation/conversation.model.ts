@@ -7,7 +7,7 @@ export class Message {
 }
 
 interface IConversation extends Document {
-  id: String,
+  room: string,
   person1: String,
   person2: String,
   messages: [Message]
@@ -15,7 +15,7 @@ interface IConversation extends Document {
 
 
 export const conversationSchema: Schema = new Schema({
-  id: String,
+  room: String,
   person1: { id: String, name: String, avatar: String },
   person2: { id: String, name: String, avatar: String },
   messages: [{ ...Message }],

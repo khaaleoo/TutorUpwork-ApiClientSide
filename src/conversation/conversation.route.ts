@@ -17,5 +17,10 @@ export class ConversationRoutes {
       passport.authenticate("jwt", { session: false }),
       this.converController.loadConversations
     );
+    this.router.post(
+      "/getOne",
+      passport.authenticate("jwt", { session: false }),
+      this.converController.getOne
+    );
   }
 }
