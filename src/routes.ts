@@ -8,6 +8,7 @@ import { UploadRoutes } from "./upload/upload.route";
 import { SandBoxRoutes } from "./sandbox/sanbox.routes";
 import { ContractRoutes } from "./contract/contract.routes";
 // import { AuthRoutes } from "./auth/auth.route";
+import { ConversationRoutes } from './conversation/conversation.route';
 
 const assign: { path: string; controller: Router }[] = [
   {
@@ -29,6 +30,10 @@ const assign: { path: string; controller: Router }[] = [
   {
     path: "/upload",
     controller: new UploadRoutes().router
+  },
+  {
+    path: "/conversations",
+    controller: new ConversationRoutes().router
   },
   {
     path: "/pay",
