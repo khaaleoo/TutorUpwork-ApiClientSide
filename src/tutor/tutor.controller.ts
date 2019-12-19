@@ -101,6 +101,13 @@ export class TutorController {
       { id: tutorId },
       { $push: { comment: { authorId, content, datetime } } }
     );
-    res.status(200).json({ Status: "OK", comment: { content } });
+    const student = await StudentModel.find({ id: authorId });
+    res.status(200).json({
+      Status: "OK",
+      authorId: authorId,
+      student: student,
+      datetime: datetime,
+      content: content
+    });
   }
 }
