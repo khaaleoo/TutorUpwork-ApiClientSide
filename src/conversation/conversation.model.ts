@@ -1,40 +1,25 @@
 import { Document, Schema, Model, model, Error } from "mongoose";
 
-class Message {
+export class Message {
+  id: String = "";
   content: String = "";
   date: Number = 0;
 }
 
-export interface IConversation extends Document {
-  id: String,
-  person1: {
-    id: String,
-    name: String,
-    avatar: String
-  },
-  person2: {
-    id: String,
-    name: String,
-    avatar: String
-  },
-  messages: Message
+interface IConversation extends Document {
+  room: string,
+  person1: String,
+  person2: String,
+  messages: [Message]
 }
 
+
 export const conversationSchema: Schema = new Schema({
-  id: {
-    type: String
-  },
-  person1: {
-    id: String,
-    name: String,
-    avatar: String
-  },
-  person2: {
-    id: String,
-    name: String,
-    avatar: String
-  },
-  messages: { type: Message }
+  room: String,
+  person1: { id: String, name: String, avatar: String },
+  person2: { id: String, name: String, avatar: String },
+  messages: [{ ...Message }],
+  lastMess: { ...Message }
 });
 
 export const ConversationModel: Model<IConversation> = model<IConversation>("Conversation", conversationSchema);

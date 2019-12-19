@@ -9,7 +9,7 @@ import { } from "./user/user.controller";
 import Routes from "./routes";
 import session from "express-session";
 import socket from "socket.io";
-
+import { ConversationService } from './conversation/conversation.service';
 import http from "http"
 class Server {
   public app: express.Application;
@@ -18,6 +18,7 @@ class Server {
 
   public sockets: any = {};
   public requests: any = {};
+  public rooms: any = {};
 
   constructor() {
     this.app = express();
@@ -30,36 +31,50 @@ class Server {
     this.socketIO = socket(this.server);
     this.socketIO.on("connection", (socket: any) => {
       console.log("New client connected");
-      socket.on("disconnect", () => console.log("Client disconnected"));
+      //--------------------------------------------------------------------
+      socket.on("disconnect", () => {
+        this.sockets[socket.myId] = null;
+      });
+      //--------------------------------------------------------------------
       socket.on("hello", (id: string) => {
+        socket.myId = id;
         console.log("tutor online", id)
         this.sockets[id] = socket;
         if (this.requests[id]) {
-          this.requests[id].forEach((room: string) => {
-            socket.join(room);
-          });
+          for (let i = 0; i < this.requests[id].length; i += 1) {
+            socket.join(this.requests[id][i]);
+          }
+          this.requests[id].length = 0;
         }
-      })
-      socket.on("start", (id: string, idClient: string, mess: string) => {
-        console.log(id, idClient);
-        const room = Math.random();
+      });
+      //--------------------------------------------------------------------
+      socket.on("start", async (id: string, idClient: string, mess: string) => {
+        const room = await ConversationService.creatrOrUpdate(id, idClient, mess);
         socket.join(room);
-        if (this.sockets[idClient]) {// nếu có đối phương thì add vô room
-          console.log("có thể chat")
+        socket.emit("join", room);
+        console.log("SDf")
+        if (this.sockets[idClient]) {  // nếu có đối phương thì add vô room
+          console.log("có thể chat");
           this.sockets[idClient].join(room);
-          socket.in(room).emit("want", id);
-          socket.in(room).emit("chatchit", id, mess);
-          socket.nsp.in(room).emit("ready", room);
+          this.sockets[idClient].emit("notify");
+          socket.in(room).emit("haveMessage", room, mess)
         }
         else { // còn không để request 
           console.log("off r")
-          if (!this.requests[idClient]) this.requests[idClient] = [];
-          this.requests[idClient].push(idClient);
+          if (!this.requests[idClient]) {
+            this.requests[idClient] = []
+          }
+          else {
+            this.requests[idClient].push(idClient);
+          }
         }
-      })
-      socket.on("chat", (room: number, content: string) => {
-        console.log("chat", room, content)
-        socket.in(room).emit("chatchit", room, content)
+      });
+      //--------------------------------------------------------------------
+      socket.on("chat", (room: string, content: string) => {
+        console.log("haveMessage", room, content);
+        socket.in(room).emit("haveMessage", room, content);
+        socket.in(room).emit("notify");
+        ConversationService.addMessage(room, socket.myId, content)
       })
     });
   }
