@@ -7,6 +7,7 @@ export class StudentController {
     const result = await StudentModel.find({
       id: req.url.replace("/", "")
     });
+    console.log(result);
     for (let i = 0; i < result[0].contracts.length; i += 1) {
       const contractsRes = await ContractModel.find({
         id: result[0].contracts[i]
@@ -20,7 +21,6 @@ export class StudentController {
         if (tutorRes[0] !== undefined) {
           temp.tutor = tutorRes[0].toObject();
         }
-
         result[0].contracts[i] = temp;
       } else {
         result[0].contracts[i] = "error";

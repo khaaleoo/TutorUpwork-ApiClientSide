@@ -32,7 +32,6 @@ const jwt = new JwtStrategy(
         secretOrKey: JWT_SECRET
     },
     async (jwtToken, done) => {
-        console.log("dxcfvgbhnvgbhn", jwtToken);
         const userList = await UserModel.find({ id: jwtToken.id });
         if (userList.length === 0) return done(undefined, false);
         return done(undefined, userList[0], jwtToken);
