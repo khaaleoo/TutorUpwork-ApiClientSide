@@ -52,6 +52,7 @@ export class UserController {
     }
     return res.status(200).json({ status: "Không tìm thấy email" });
   }
+
   public genCode() {
     return `${Date.now()}`;
   }
@@ -106,12 +107,13 @@ export class UserController {
           status: "Error",
           message: err
         });
+
       if (!user) {
         return res.status(401).json({
           status: "Error",
           message: "Email hoặc password chưa đúng !"
         });
-      }
+      } 
       const info = await UserService.getInfo(user.id);
       console.log("usr:", { ...user, ...info });
       const token = jwt.sign(JSON.stringify({ id: user.id }), JWT_SECRET);
