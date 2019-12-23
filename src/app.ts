@@ -5,12 +5,12 @@ import { join } from "path";
 import passport from "passport";
 import bodyParser from "body-parser";
 import { MONGODB_URI } from "./utils/secrets";
-import { } from "./user/user.controller";
+import {} from "./user/user.controller";
 import Routes from "./routes";
 import session from "express-session";
 import socket from "socket.io";
-import { ConversationService } from './conversation/conversation.service';
-import http from "http"
+import { ConversationService } from "./conversation/conversation.service";
+import http from "http";
 class Server {
   public app: express.Application;
   public server!: http.Server;
@@ -35,7 +35,7 @@ class Server {
       socket.on("disconnect", () => {
         this.sockets[socket.myId] = null;
         const leave = socket.r || [];
-        console.log(leave)
+        console.log(leave);
         leave.forEach((val: any) => {
           socket.leave(val);
         });
@@ -43,37 +43,40 @@ class Server {
       //--------------------------------------------------------------------
       socket.on("hello", (id: string) => {
         socket.myId = id;
-        console.log("tutor online", id)
+        console.log("tutor online", id);
         this.sockets[id] = socket;
         socket.r = [];
         if (this.requests[id]) {
           for (let i = 0; i < this.requests[id].length; i += 1) {
             socket.join(this.requests[id][i]);
-            socket.rooms.push(this.requests[id][i])
+            socket.rooms.push(this.requests[id][i]);
           }
         }
       });
       //--------------------------------------------------------------------
       socket.on("start", async (id: string, idClient: string, mess: string) => {
-        const room = await ConversationService.creatrOrUpdate(id, idClient, mess);
+        const room = await ConversationService.creatrOrUpdate(
+          id,
+          idClient,
+          mess
+        );
         socket.join(room);
-        socket.r.push(room)
-        this.rooms[room] =
-          socket.emit("join", room);
-        console.log("SDf")
-        if (this.sockets[idClient]) {  // nếu có đối phương thì add vô room
+        socket.r.push(room);
+        this.rooms[room] = socket.emit("join", room);
+        console.log("SDf");
+        if (this.sockets[idClient]) {
+          // nếu có đối phương thì add vô room
           console.log("có thể chat");
           this.sockets[idClient].join(room);
           this.sockets[idClient].r.push(room);
           this.sockets[idClient].emit("notify");
-          socket.in(room).emit("haveMessage", room, mess)
-        }
-        else { // còn không để request 
-          console.log("off r")
+          socket.in(room).emit("haveMessage", room, mess);
+        } else {
+          // còn không để request
+          console.log("off r");
           if (!this.requests[idClient]) {
-            this.requests[idClient] = []
-          }
-          else {
+            this.requests[idClient] = [];
+          } else {
             this.requests[idClient].push(idClient);
           }
         }
@@ -83,8 +86,8 @@ class Server {
         console.log("haveMessage", room, content);
         socket.in(room).emit("haveMessage", room, content);
         socket.in(room).emit("notify");
-        ConversationService.addMessage(room, socket.myId, content)
-      })
+        ConversationService.addMessage(room, socket.myId, content);
+      });
     });
   }
   public routes(): void {
@@ -92,7 +95,7 @@ class Server {
   }
 
   public config(): void {
-    let allowCrossDomain = function (_req: any, res: any, next: any) {
+    let allowCrossDomain = function(_req: any, res: any, next: any) {
       res.header("Access-Control-Allow-Origin", "*");
       res.header("Access-Control-Allow-Headers", "*");
       res.header(
