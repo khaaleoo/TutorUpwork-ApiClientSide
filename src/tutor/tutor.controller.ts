@@ -102,15 +102,20 @@ export class TutorController {
     const result = await TutorModel.find({ id: tutorId });
     if (result.length > 0) {
       const obj = result[0].toObject();
-      for (let i = 0; i < result[0].comments.length; i += 1) {
-        const author = await UserService.getInfo(
-          result[0].comments[i].idAuthor.toString()
-        );
 
-        if (author.hasOwnProperty("avatar")) {
-          obj.comments[i].avatar = author.avatar;
+      for (let i = 0; i < result[0].comments.length; i += 1) {
+        if (obj.comments[i].hasOwnProperty("idAuthor")) {
+          const author = await UserService.getInfo(
+            result[0].comments[i].idAuthor.toString()
+          );
+
+          if (author.hasOwnProperty("avatar")) {
+            obj.comments[i].avatar = author.avatar;
+          } else {
+            obj.comments[i].avatar = "";
+          }
         } else {
-          obj.comments[i].avatar = "";
+          obj.comments[i] == "error";
         }
       }
       res.status(200).json({
@@ -127,15 +132,21 @@ export class TutorController {
   public async comment(req: any, res: any): Promise<any> {
     const { body } = req;
     const { authorId, content, datetime, tutorId } = body;
-    await TutorModel.update(
+    console.log(body.tutorId);
+    const id = await TutorModel.updateOne(
       { id: tutorId },
-      { $push: { comment: { authorId, content, datetime } } }
+      { $push: { comments: { idAuthor: authorId, content, datetime } } }
     );
     const student = await StudentModel.find({ id: authorId });
+    if (id.n === 0 || student.length === 0) {
+      res.status(200).json({
+        Status: "NotOK"
+      });
+    }
     res.status(200).json({
       Status: "OK",
       authorId: authorId,
-      student: student,
+      avatar: student[0].avatar,
       datetime: datetime,
       content: content
     });
