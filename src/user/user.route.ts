@@ -14,8 +14,14 @@ export class UserRoutes {
     this.router.post("/login", this.userController.authenticateUser);
     this.router.post("/facebook", this.userController.facebook);
     this.router.post("/verify", this.userController.verfify);
+    this.router.post("/emailVerify", this.userController.EmailVerify);
+    this.router.post("/requestVerify", this.userController.requestVerify);
     this.router.post("/google", this.userController.google);
-    this.router.get("/me", passport.authenticate("jwt", { session: false }), this.userController.getMe)
+    this.router.get(
+      "/me",
+      passport.authenticate("jwt", { session: false }),
+      this.userController.getMe
+    );
     this.router.get("/", this.userController.getAll);
   }
 }

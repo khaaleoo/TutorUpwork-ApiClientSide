@@ -9,35 +9,48 @@ import "../auth/passport";
 import { UserService } from "./user.service";
 import nodemailer from "nodemailer";
 import { host, emailPass, emailUser } from "../constant";
+const sendMail = (id: string, code: string, email: string) => {
+  const smtpTransport = nodemailer.createTransport({
+    host: "gmail.com",
+    service: "Gmail",
+    auth: {
+      user: emailUser,
+      pass: emailPass
+    }
+  });
 
+  var url = `${host}/user/verify?id=${id}&code=${code}`;
+  var html = '<a href="' + url + '"><b>Click here to reset password</b></a>';
+  const mailOptions = {
+    from: emailUser,
+    to: email,
+    subject: "Forgot password",
+    html
+  };
+  return smtpTransport.sendMail(mailOptions);
+};
 export class UserController {
-  public sendMail(id: string, code: string, email: string) {
-    var transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: emailUser,
-        pass: emailPass
-      }
-    });
-    var url = `${host}/user/emailVerify?id=${id}&code=${code}`;
-    var html = '<a href="' + url + '"><b>Click here to reset password</b></a>';
-    const mailOptions = {
-      from: emailUser, // sender address
-      to: email, // list of receivers
-      subject: "Forgot password", // Subject line
-      html: html // plain text body
-    };
-    return transporter.sendMail(mailOptions, function(err, info) {
-      if (err) {
-        //console.log(err);
-        err.message = "Bị lỗi email rồi";
-        return next(err);
-        console.log(err);
-      } else {
-        req.session.message = `Check email ${user.email} để đổi mật khẩu`;
-        res.redirect("/account/login");
-      }
-    });
+  public async requestVerify(req: any, res: any) {
+    const find = await UserModel.find({ email: req.body.email });
+    const code = `${Date.now()}`;
+    console.log(req.body.email, find);
+    if (req.body.email && find.length > 0) {
+      if (find[0].valid)
+        return res
+          .status(200)
+          .json({ status: "Tài khoản hiện đã kích hoạt sẵn rồi" });
+      await sendMail(find[0].id, code, req.body.email);
+      await UserModel.update(
+        { email: req.body.email },
+        {
+          $set: {
+            code
+          }
+        }
+      );
+      return res.status(200).json({ status: "Vui lòng xem email để xác thực" });
+    }
+    return res.status(200).json({ status: "Không tìm thấy email" });
   }
   public genCode() {
     return `${Date.now()}`;
@@ -60,7 +73,10 @@ export class UserController {
       const userList = await UserModel.find({ email });
       if (userList.length > 0) throw "User already exits";
       const id = Date.now().toString();
+      const code = `${Date.now()}`;
+      await sendMail(id, code, email);
       const result = await UserModel.create({
+        code,
         email,
         password,
         role,
@@ -76,30 +92,35 @@ export class UserController {
         .status(200)
         .send({ status: "OK", message: plainToClass(User, result) });
     } catch (error) {
+      console.log(error);
       res.status(400).json({ status: "Error", message: error.message });
     }
   }
 
   public async authenticateUser(req: any, res: any, next: any): Promise<void> {
     console.log("body", req.body);
-    passport.authenticate("local", async (err, user) => {
-      if (err) return next(err);
+    return passport.authenticate("local", async (err, user, mess) => {
+      console.log(err, user, mess);
+      if (err)
+        return res.status(401).json({
+          status: "Error",
+          message: err
+        });
       if (!user) {
         return res.status(401).json({
           status: "Error",
           message: "Email hoặc password chưa đúng !"
         });
-      } else {
-        const info = await UserService.getInfo(user.id);
-        console.log("usr:", { ...user, ...info });
-        const token = jwt.sign(JSON.stringify({ id: user.id }), JWT_SECRET);
-        res.status(200).send({
-          status: "OK",
-          message: "Success",
-          token,
-          user: { ...plainToClass(User, user), ...info }
-        });
       }
+      const info = await UserService.getInfo(user.id);
+      console.log("usr:", { ...user, ...info });
+      const token = jwt.sign(JSON.stringify({ id: user.id }), JWT_SECRET);
+      res.status(200).send({
+        status: "OK",
+        message: "Success",
+        token,
+        user: { ...plainToClass(User, user), ...info }
+      });
     })(req, res, next);
   }
   public async verfify(req: any, res: any) {
@@ -178,35 +199,6 @@ export class UserController {
       res.status(400).json({ status: "ERROR", message: error.message });
     }
   }
-  // public async google(req: any, res: any): Promise<void> {
-  //   console.log("body", req.body);
-  //   try {
-  //     const userList = await UserModel.find({
-  //       email: req.body.profile.profile.googleId + "@google.com"
-  //     });
-  //     console.log(userList);
-  //     let re = null;
-  //     const id = Date.now().toString();
-  //     if (userList.length === 0) {
-  //       re = await UserModel.create({
-  //         id: id,
-  //         email: req.body.profile.profile.googleId + "@google.com",
-  //         password: "abcdef",
-  //         role: req.body.profile.role || "student",
-  //         type: 2
-  //       });
-  //     } else {
-  //       re = userList[0];
-  //     }
-  //     const token = jwt.sign({ email: re.email }, JWT_SECRET);
-  //     res
-  //       .status(200)
-  //       .send({ status: "OK", message: "Success", token, user: re });
-  //   } catch (error) {
-  //     console.log(error);
-  //     res.status(400).json({ status: "Error", message: error.message });
-  //   }
-  // }
 
   public async getAll(req: any, res: any): Promise<void> {
     const result = await UserModel.find({});
@@ -214,5 +206,27 @@ export class UserController {
       status: "OK",
       message: result.map(val => plainToClass(User, val))
     });
+  }
+
+  public async EmailVerify(req: any, res: any) {
+    const { code, id } = req.body;
+    if (!code || !id)
+      return res.status(200).json({ status: "FAILED", message: "WRONG CODE" });
+    const findCode = await UserModel.find({ code, id });
+    console.log("findcode", findCode);
+
+    if (findCode.length > 0) {
+      await UserModel.update(
+        { code, id },
+        {
+          $set: {
+            valid: true,
+            code: ""
+          }
+        }
+      );
+      return res.status(200).json({ status: "OK", message: "SUCCESSFULL" });
+    }
+    res.status(200).json({ status: "FAILED", message: "WRONG CODE" });
   }
 }
