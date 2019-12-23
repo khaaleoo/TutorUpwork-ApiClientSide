@@ -62,12 +62,14 @@ export class UserController {
         });
       } else {
         const info = await UserService.getInfo(user.id);
+        console.log("usr:", { ...user, ...info });
+
         const token = jwt.sign(JSON.stringify({ id: user.id }), JWT_SECRET);
         res.status(200).send({
           status: "OK",
           message: "Success",
           token,
-          user: { ...user, ...info }
+          user: { ...plainToClass(User, user), ...info }
         });
       }
     })(req, res, next);
@@ -84,7 +86,7 @@ export class UserController {
         status: "OK",
         message: "Success",
         token,
-        user: { ...user, ...info }
+        user: { ...plainToClass(User, user), ...info }
       });
     } else
       res.status(200).send({ status: "OK", message: "Success", user: false });
@@ -112,7 +114,7 @@ export class UserController {
         status: "OK",
         message: "Success",
         token,
-        user: { ...user, ...info }
+        user: { ...plainToClass(User, user), ...info }
       });
     } catch (error) {
       console.error(error);
@@ -142,7 +144,7 @@ export class UserController {
         status: "OK",
         message: "Success",
         token,
-        user: { ...user, ...info }
+        user: { ...plainToClass(User, user), ...info }
       });
     } catch (error) {
       res.status(400).json({ status: "ERROR", message: error.message });
