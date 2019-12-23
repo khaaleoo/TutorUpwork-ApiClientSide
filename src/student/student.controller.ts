@@ -7,16 +7,21 @@ export class StudentController {
     const result = await StudentModel.find({
       id: req.url.replace("/", "")
     });
+<<<<<<< HEAD
     console.log(result);
     for (let i = 0; i < result[0].contracts.length; i += 1) {
       const contractsRes = await ContractModel.find({
         id: result[0].contracts[i]
       });
+=======
+>>>>>>> 307deb0a932e239ad590f328f74d84edbcdd4e10
 
-      if (contractsRes[0] !== undefined) {
-        const tutorRes = await TutorModel.find({
-          id: contractsRes[0].tutorId
+    if (result.length !== 0) {
+      for (let i = 0; i < result[0].contracts.length; i += 1) {
+        const contractsRes = await ContractModel.find({
+          id: result[0].contracts[i]
         });
+<<<<<<< HEAD
         const temp = contractsRes[0].toObject();
         if (tutorRes[0] !== undefined) {
           temp.tutor = tutorRes[0].toObject();
@@ -24,7 +29,27 @@ export class StudentController {
         result[0].contracts[i] = temp;
       } else {
         result[0].contracts[i] = "error";
+=======
+
+        if (contractsRes[0] !== undefined) {
+          const tutorRes = await TutorModel.find({
+            id: contractsRes[0].tutorId
+          });
+          const temp = contractsRes[0].toObject();
+          if (tutorRes[0] !== undefined) {
+            temp.tutor = tutorRes[0].toObject();
+          }
+
+          result[0].contracts[i] = temp;
+        } else {
+          result[0].contracts[i] = "error";
+        }
+>>>>>>> 307deb0a932e239ad590f328f74d84edbcdd4e10
       }
+    } else {
+      res.status(200).send({
+        status: "NotOk"
+      });
     }
 
     res.status(200).send({
