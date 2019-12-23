@@ -1,6 +1,8 @@
+/* eslint-disable no-prototype-builtins */
 import { TutorModel } from "./tutor.model";
 import { ContractModel } from "../contract/contract.model";
 import { StudentModel } from "../student/student.model";
+import { UserService } from "../user/user.service";
 
 export class TutorController {
   public updateOne(req: any, res: any) {
@@ -94,6 +96,34 @@ export class TutorController {
       data: result
     });
   }
+
+  public async getListComment(req: any, res: any): Promise<any> {
+    const tutorId = req.params.id;
+    const result = await TutorModel.find({ id: tutorId });
+    if (result.length > 0) {
+      const obj = result[0].toObject();
+      for (let i = 0; i < result[0].comments.length; i += 1) {
+        const author = await UserService.getInfo(
+          result[0].comments[i].idAuthor.toString()
+        );
+
+        if (author.hasOwnProperty("avatar")) {
+          obj.comments[i].avatar = author.avatar;
+        } else {
+          obj.comments[i].avatar = "";
+        }
+      }
+      res.status(200).json({
+        Status: "OK",
+        result: obj.comments
+      });
+    } else {
+      res.status(200).json({
+        Status: "NotOk",
+        result: []
+      });
+    }
+  }
   public async comment(req: any, res: any): Promise<any> {
     const { body } = req;
     const { authorId, content, datetime, tutorId } = body;
@@ -101,6 +131,13 @@ export class TutorController {
       { id: tutorId },
       { $push: { comment: { authorId, content, datetime } } }
     );
-    res.status(200).json({ Status: "OK", comment: { content } });
+    const student = await StudentModel.find({ id: authorId });
+    res.status(200).json({
+      Status: "OK",
+      authorId: authorId,
+      student: student,
+      datetime: datetime,
+      content: content
+    });
   }
 }
