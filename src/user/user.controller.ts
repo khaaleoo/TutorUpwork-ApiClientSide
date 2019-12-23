@@ -6,8 +6,13 @@ import { JWT_SECRET } from "../utils/secrets";
 import { plainToClass } from "class-transformer";
 import passport from "passport";
 import "../auth/passport";
+import { UserService } from "./user.service";
 
 export class UserController {
+  public sendMail(id: string, code: string, email: string) {}
+  public genCode() {
+    return `${Date.now()}`;
+  }
   public async getMe(req: any, res: any) {
     if (req.user.role === "tutor") {
       const tutorList = await TutorModel.find({ id: req.user.id });
@@ -48,7 +53,7 @@ export class UserController {
 
   public async authenticateUser(req: any, res: any, next: any): Promise<void> {
     console.log("body", req.body);
-    passport.authenticate("local", (err, user) => {
+    passport.authenticate("local", async (err, user) => {
       if (err) return next(err);
       if (!user) {
         return res.status(401).json({
@@ -56,12 +61,13 @@ export class UserController {
           message: "Email hoặc password chưa đúng !"
         });
       } else {
+        const info = await UserService.getInfo(user.id);
         const token = jwt.sign(JSON.stringify({ id: user.id }), JWT_SECRET);
         res.status(200).send({
           status: "OK",
           message: "Success",
           token,
-          user: plainToClass(User, user)
+          user: { ...user, ...info }
         });
       }
     })(req, res, next);
@@ -72,12 +78,13 @@ export class UserController {
     });
     if (userList.length > 0) {
       const user = userList[0];
+      const info = await UserService.getInfo(user.id);
       const token = jwt.sign(JSON.stringify({ id: user.id }), JWT_SECRET);
       res.status(200).send({
         status: "OK",
         message: "Success",
         token,
-        user: plainToClass(User, user)
+        user: { ...user, ...info }
       });
     } else
       res.status(200).send({ status: "OK", message: "Success", user: false });
@@ -100,11 +107,12 @@ export class UserController {
       } else {
         await StudentModel.create(new Student(body));
       }
+      const info = await UserService.getInfo(user.id);
       res.status(200).send({
         status: "OK",
         message: "Success",
         token,
-        user: plainToClass(User, user)
+        user: { ...user, ...info }
       });
     } catch (error) {
       console.error(error);
@@ -129,11 +137,12 @@ export class UserController {
       } else {
         await StudentModel.create(new Student(body));
       }
+      const info = await UserService.getInfo(user.id);
       res.status(200).send({
         status: "OK",
         message: "Success",
         token,
-        user: plainToClass(User, user)
+        user: { ...user, ...info }
       });
     } catch (error) {
       res.status(400).json({ status: "ERROR", message: error.message });
