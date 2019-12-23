@@ -138,17 +138,18 @@ export class TutorController {
       { $push: { comments: { idAuthor: authorId, content, datetime } } }
     );
     const student = await StudentModel.find({ id: authorId });
+    console.log(student);
     if (id.n === 0 || student.length === 0) {
       res.status(200).json({
         Status: "NotOK"
       });
-    }
-    res.status(200).json({
-      Status: "OK",
-      authorId: authorId,
-      avatar: student[0].avatar,
-      datetime: datetime,
-      content: content
-    });
+    } else
+      res.status(200).json({
+        Status: "OK",
+        authorId: authorId,
+        avatar: student[0].avatar,
+        datetime: datetime,
+        content: content
+      });
   }
 }
