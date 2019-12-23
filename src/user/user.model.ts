@@ -11,12 +11,15 @@ export class User {
   @Expose()
   role: String = "";
   password: string = "";
+  valid: boolean = false;
 }
 export interface IUser extends Document {
   email: String;
   password: string;
   role: String;
   type: Number;
+  code: String;
+  valid: boolean;
 }
 
 export const userSchema: Schema = new Schema({
@@ -43,7 +46,9 @@ export const userSchema: Schema = new Schema({
   type: {
     type: Number,
     required: true
-  }
+  },
+  valid: Boolean,
+  code: String
 });
 
 userSchema.pre<IUser>("save", function save(this: any, next: () => void) {
