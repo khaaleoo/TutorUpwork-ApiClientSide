@@ -32,4 +32,21 @@ export class StudentController {
       data: result
     });
   }
+  public updateOne(req: any, res: any) {
+    const { body } = req;
+    console.log("update student body", body);
+    console.log(req.user.id);
+    StudentModel.update(
+      { id: req.user.id },
+      {
+        $set: {
+          ...body
+        }
+      },
+      (err, raw) => {
+        console.log("result", err, raw);
+        res.status(200).json("sdfsd");
+      }
+    );
+  }
 }
