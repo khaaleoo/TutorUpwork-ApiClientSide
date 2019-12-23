@@ -34,28 +34,37 @@ class Server {
       //--------------------------------------------------------------------
       socket.on("disconnect", () => {
         this.sockets[socket.myId] = null;
+        const leave = socket.r || [];
+        console.log(leave)
+        leave.forEach((val: any) => {
+          socket.leave(val);
+        });
       });
       //--------------------------------------------------------------------
       socket.on("hello", (id: string) => {
         socket.myId = id;
         console.log("tutor online", id)
         this.sockets[id] = socket;
+        socket.r = [];
         if (this.requests[id]) {
           for (let i = 0; i < this.requests[id].length; i += 1) {
             socket.join(this.requests[id][i]);
+            socket.rooms.push(this.requests[id][i])
           }
-          this.requests[id].length = 0;
         }
       });
       //--------------------------------------------------------------------
       socket.on("start", async (id: string, idClient: string, mess: string) => {
         const room = await ConversationService.creatrOrUpdate(id, idClient, mess);
         socket.join(room);
-        socket.emit("join", room);
+        socket.r.push(room)
+        this.rooms[room] =
+          socket.emit("join", room);
         console.log("SDf")
         if (this.sockets[idClient]) {  // nếu có đối phương thì add vô room
           console.log("có thể chat");
           this.sockets[idClient].join(room);
+          this.sockets[idClient].r.push(room);
           this.sockets[idClient].emit("notify");
           socket.in(room).emit("haveMessage", room, mess)
         }
