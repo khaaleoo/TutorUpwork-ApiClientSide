@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { StudentController } from "./student.controller";
+import passport from "passport";
 
 export class StudentRoutes {
   public router: Router;
@@ -12,5 +13,10 @@ export class StudentRoutes {
 
   routes() {
     this.router.get("/:id", this.studentController.getOne);
+    this.router.post(
+      "/",
+      passport.authenticate("jwt", { session: false }),
+      this.studentController.updateOne
+    );
   }
 }

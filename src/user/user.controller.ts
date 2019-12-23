@@ -11,9 +11,10 @@ export class UserController {
   public async getMe(req: any, res: any) {
     if (req.user.role === "tutor") {
       const tutorList = await TutorModel.find({ id: req.user.id });
-      console.log(tutorList);
-      res.json(tutorList[0]);
-      return;
+      if (tutorList.length >= 0) return res.json(tutorList[0]);
+    } else if (req.user.role === "student") {
+      const studentList = await StudentModel.find({ id: req.user.id });
+      if (studentList.length >= 0) return res.json(studentList[0]);
     }
     res.json({});
   }

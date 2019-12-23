@@ -15,7 +15,7 @@ export class Student {
   id: String = "";
   email: String = "";
   name: String = "";
-  gender: String = "";
+  gender: String = "Nam";
   birthday: Date = new Date();
   address: Address = new Address();
   avatar: String = "";
