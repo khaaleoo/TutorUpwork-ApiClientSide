@@ -7,9 +7,38 @@ import { plainToClass } from "class-transformer";
 import passport from "passport";
 import "../auth/passport";
 import { UserService } from "./user.service";
+import nodemailer from "nodemailer";
+import { host, emailPass, emailUser } from "../constant";
 
 export class UserController {
-  public sendMail(id: string, code: string, email: string) {}
+  public sendMail(id: string, code: string, email: string) {
+    var transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: emailUser,
+        pass: emailPass
+      }
+    });
+    var url = `${host}/user/emailVerify?id=${id}&code=${code}`;
+    var html = '<a href="' + url + '"><b>Click here to reset password</b></a>';
+    const mailOptions = {
+      from: emailUser, // sender address
+      to: email, // list of receivers
+      subject: "Forgot password", // Subject line
+      html: html // plain text body
+    };
+    return transporter.sendMail(mailOptions, function(err, info) {
+      if (err) {
+        //console.log(err);
+        err.message = "Bị lỗi email rồi";
+        return next(err);
+        console.log(err);
+      } else {
+        req.session.message = `Check email ${user.email} để đổi mật khẩu`;
+        res.redirect("/account/login");
+      }
+    });
+  }
   public genCode() {
     return `${Date.now()}`;
   }
@@ -62,12 +91,13 @@ export class UserController {
         });
       } else {
         const info = await UserService.getInfo(user.id);
+        console.log("usr:", { ...user, ...info });
         const token = jwt.sign(JSON.stringify({ id: user.id }), JWT_SECRET);
         res.status(200).send({
           status: "OK",
           message: "Success",
           token,
-          user: { ...user, ...info }
+          user: { ...plainToClass(User, user), ...info }
         });
       }
     })(req, res, next);
@@ -84,7 +114,7 @@ export class UserController {
         status: "OK",
         message: "Success",
         token,
-        user: { ...user, ...info }
+        user: { ...plainToClass(User, user), ...info }
       });
     } else
       res.status(200).send({ status: "OK", message: "Success", user: false });
@@ -112,7 +142,7 @@ export class UserController {
         status: "OK",
         message: "Success",
         token,
-        user: { ...user, ...info }
+        user: { ...plainToClass(User, user), ...info }
       });
     } catch (error) {
       console.error(error);
@@ -142,7 +172,7 @@ export class UserController {
         status: "OK",
         message: "Success",
         token,
-        user: { ...user, ...info }
+        user: { ...plainToClass(User, user), ...info }
       });
     } catch (error) {
       res.status(400).json({ status: "ERROR", message: error.message });
