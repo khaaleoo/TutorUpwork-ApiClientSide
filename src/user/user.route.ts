@@ -23,5 +23,10 @@ export class UserRoutes {
       this.userController.getMe
     );
     this.router.get("/", this.userController.getAll);
+    this.router.post(
+      "/changePassword",
+      passport.authenticate("jwt", { session: false }),
+      this.userController.changePassword
+    );
   }
 }
