@@ -56,7 +56,7 @@ export class ContractController {
     }).count();
     const fail = await ContractModel.find({
       tutorId: idTutor,
-      status: "Đã huỷ"
+      status: "Đã hủy"
     }).count();
     console.log(success);
     if (fail === 0) {
