@@ -9,6 +9,8 @@ import "../auth/passport";
 import { UserService } from "./user.service";
 import nodemailer from "nodemailer";
 import { host, emailPass, emailUser } from "../constant";
+import { hashSync } from "bcrypt";
+
 const sendMail = (id: string, code: string, email: string) => {
   const smtpTransport = nodemailer.createTransport({
     host: "gmail.com",
@@ -20,7 +22,7 @@ const sendMail = (id: string, code: string, email: string) => {
   });
 
   var url = `${host}/user/verify?id=${id}&code=${code}`;
-  var html = '<a href="' + url + '"><b>Click here to reset password</b></a>';
+  var html = '<a href="' + url + '"><b>Bấm để xác thực </b></a>';
   const mailOptions = {
     from: emailUser,
     to: email,
@@ -30,6 +32,23 @@ const sendMail = (id: string, code: string, email: string) => {
   return smtpTransport.sendMail(mailOptions);
 };
 export class UserController {
+  async changePassword(req: any, res: any) {
+    const { password } = req.body;
+    try {
+      await UserModel.update(
+        { id: req.user.id },
+        {
+          $set: {
+            password: hashSync(password, 10)
+          }
+        }
+      );
+      res.status(200).json({ status: "OK" });
+    } catch (err) {
+      console.log(err);
+      res.status(200).json({ status: "ERROR", message: err.message });
+    }
+  }
   public async requestVerify(req: any, res: any) {
     const find = await UserModel.find({ email: req.body.email });
     const code = `${Date.now()}`;
