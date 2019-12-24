@@ -22,7 +22,7 @@ export class SandBoxController {
   };
 
   public createPaymentUrl = (req: any, res: any) => {
-    this.idContract = req.body.idContract.id;
+    this.idContract = req.body.idContract;
 
     console.log("id ne", this.idContract);
     const ipAddr =
