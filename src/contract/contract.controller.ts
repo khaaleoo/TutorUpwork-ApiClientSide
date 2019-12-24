@@ -62,4 +62,21 @@ export class ContractController {
       .status(200)
       .json({ Status: "OK", idContract: id, reportInfo: reportInfo });
   }
+
+  public async changeStatus(req: any, res: any): Promise<any> {
+    const { body } = req;
+    const { id, status } = body;
+    await ContractModel.updateOne({ id: id }, { $set: { status: status } });
+    res.status(200).json({ Status: "OK", idContract: id, status: status });
+  }
+
+  public async loadContractByTimeRange(req: any, res: any): Promise<any> {
+    const { body } = req;
+    const { id, beginTime, endTime } = body;
+    const result = await ContractModel.find({
+      tutorId: id,
+      beginTime: { $gt: beginTime, $lt: endTime }
+    });
+    res.status(200).json({ Status: "OK", tutorId: id, data: result });
+  }
 }
