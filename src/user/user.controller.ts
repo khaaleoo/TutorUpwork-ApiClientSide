@@ -325,13 +325,6 @@ export class UserController {
         codePass: req.body.code
       });
       if (find.length <= 0) throw new Error("Không tìm thấy email");
-      const find = await UserModel.find(
-        {
-          email: req.body.email,
-          codePass: req.body.code
-        },
-        {}
-      );
       res.status(200).json({ status: "OK" });
     } catch (e) {
       res.status(200).json({ status: "ERROR", message: e.message });
