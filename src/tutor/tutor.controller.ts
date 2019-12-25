@@ -36,12 +36,12 @@ export class TutorController {
       skill = { skills: { $all: filter.skills } };
     }
     let city = {};
-    if (filter.city !== false) {
+    if (filter.city !== -1) {
       city = { "address.city": filter.city };
       console.log(filter.city);
     }
     let district = {};
-    if (filter.district !== false) {
+    if (filter.district !== -1) {
       district = { "address.district": filter.district };
     }
 
