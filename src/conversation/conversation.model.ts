@@ -7,19 +7,20 @@ export class Message {
 }
 
 interface IConversation extends Document {
-  room: string,
-  person1: String,
-  person2: String,
-  messages: [Message]
+  room: string;
+  person1: String;
+  person2: String;
+  messages: [Message];
 }
-
 
 export const conversationSchema: Schema = new Schema({
   room: String,
   person1: { id: String, name: String, avatar: String },
   person2: { id: String, name: String, avatar: String },
-  messages: [{ ...Message }],
-  lastMess: { ...Message }
+  messages: [{ ...Message }]
 });
 
-export const ConversationModel: Model<IConversation> = model<IConversation>("Conversation", conversationSchema);
+export const ConversationModel: Model<IConversation> = model<IConversation>(
+  "Conversation",
+  conversationSchema
+);

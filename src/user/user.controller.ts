@@ -9,7 +9,9 @@ import "../auth/passport";
 import { UserService } from "./user.service";
 import nodemailer from "nodemailer";
 import { host, emailPass, emailUser } from "../constant";
-import { hashSync } from "bcrypt";
+
+import { hashSync, compare } from "bcrypt";
+
 
 const sendMail = (id: string, code: string, email: string) => {
   const smtpTransport = nodemailer.createTransport({
@@ -23,6 +25,27 @@ const sendMail = (id: string, code: string, email: string) => {
 
   var url = `${host}/user/verify?id=${id}&code=${code}`;
   var html = '<a href="' + url + '"><b>Bấm để xác thực </b></a>';
+
+  const mailOptions = {
+    from: emailUser,
+    to: email,
+    subject: "Xác thực tài khoản",
+    html
+  };
+  return smtpTransport.sendMail(mailOptions);
+};
+
+const sendForgotEmail = (code: string, email: string) => {
+  const smtpTransport = nodemailer.createTransport({
+    host: "gmail.com",
+    service: "Gmail",
+    auth: {
+      user: emailUser,
+      pass: emailPass
+    }
+  });
+  var html = `Code : <h1>${code}</h1>`;
+
   const mailOptions = {
     from: emailUser,
     to: email,
@@ -31,19 +54,28 @@ const sendMail = (id: string, code: string, email: string) => {
   };
   return smtpTransport.sendMail(mailOptions);
 };
+
 export class UserController {
   async changePassword(req: any, res: any) {
-    const { password } = req.body;
+
     try {
-      await UserModel.update(
-        { id: req.user.id },
-        {
-          $set: {
-            password: hashSync(password, 10)
+      const { password, oldPassword } = req.body;
+      const find = await UserModel.find({ id: req.user.id });
+      if (find.length <= 0) throw new Error("Không tìm thấy tài khoản này nữa");
+      if (await compare(oldPassword, find[0].password)) {
+        await UserModel.update(
+          { id: req.user.id },
+          {
+            $set: {
+              password: hashSync(password, 10)
+            }
           }
-        }
-      );
-      res.status(200).json({ status: "OK" });
+        );
+        res.status(200).json({ status: "OK" });
+      } else {
+        throw new Error("Mật khẩu cũ sai");
+      }
+
     } catch (err) {
       console.log(err);
       res.status(200).json({ status: "ERROR", message: err.message });
@@ -95,6 +127,7 @@ export class UserController {
       const code = `${Date.now()}`;
       await sendMail(id, code, email);
       const result = await UserModel.create({
+        codePass: "",
         code,
         email,
         password,
@@ -121,12 +154,12 @@ export class UserController {
     return passport.authenticate("local", async (err, user, mess) => {
       console.log(err, user, mess);
       if (err)
-        return res.status(401).json({
-          status: "Error",
+        return res.status(400).json({
+          status: "VALID",
           message: err
         });
       if (!user) {
-        return res.status(401).json({
+        return res.status(400).json({
           status: "Error",
           message: "Email hoặc password chưa đúng !"
         });
@@ -247,5 +280,60 @@ export class UserController {
       return res.status(200).json({ status: "OK", message: "SUCCESSFULL" });
     }
     res.status(200).json({ status: "FAILED", message: "WRONG CODE" });
+  }
+  public async ForgotPassRequest(req: any, res: any) {
+    try {
+      const find = await UserModel.find({ email: req.body.email });
+      if (find.length <= 0) throw new Error("Không tìm thấy email");
+      const code = `${Date.now()}`;
+      const r = await sendForgotEmail(code, req.body.email);
+      console.log(r);
+      const updat = await UserModel.update(
+        { email: req.body.email },
+        {
+          $set: {
+            codePass: code
+          }
+        }
+      );
+      console.log(updat);
+      res.status(200).json({ status: "OK" });
+    } catch (e) {
+      res.status(200).json({ status: "ERROR", message: e.message });
+    }
+  }
+  public async ForgotPassChange(req: any, res: any) {
+    try {
+      const { email, password } = req.body;
+      console.log("email", email);
+      const update = await UserModel.update(
+        {
+          email: email
+        },
+        {
+          $set: {
+            password: hashSync(password, 10)
+          }
+        }
+      );
+      console.log(update);
+      res.status(200).json({ status: "OK" });
+    } catch (e) {
+      res.status(200).json({ status: "ERROR", message: e.message });
+    }
+  }
+  public async ForgotPassCode(req: any, res: any) {
+    try {
+      console.log("email", req.body.email);
+      console.log("email", req.body.email);
+      const find = await UserModel.find({
+        email: req.body.email,
+        codePass: req.body.code
+      });
+      if (find.length <= 0) throw new Error("Không tìm thấy email");
+      res.status(200).json({ status: "OK" });
+    } catch (e) {
+      res.status(200).json({ status: "ERROR", message: e.message });
+    }
   }
 }

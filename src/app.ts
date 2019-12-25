@@ -35,7 +35,7 @@ class Server {
       socket.on("disconnect", () => {
         this.sockets[socket.myId] = null;
         const leave = socket.r || [];
-        console.log(leave);
+        console.log("client disconnected");
         leave.forEach((val: any) => {
           socket.leave(val);
         });
@@ -49,6 +49,7 @@ class Server {
         if (this.requests[id]) {
           for (let i = 0; i < this.requests[id].length; i += 1) {
             socket.join(this.requests[id][i]);
+            socket.r.push(this.requests[id][i]);
             socket.rooms.push(this.requests[id][i]);
           }
         }
@@ -82,10 +83,14 @@ class Server {
         }
       });
       //--------------------------------------------------------------------
-      socket.on("chat", (room: string, content: string) => {
+      socket.on("chat", (room: string, content: string, recv: string) => {
         console.log("haveMessage", room, content);
+        if (this.sockets[recv] && !this.sockets[recv].r.includes(room)) {
+          this.sockets[recv].join(room);
+          this.sockets[recv].r.push(room);
+          socket.in(room).emit("notify");
+        }
         socket.in(room).emit("haveMessage", room, content);
-        socket.in(room).emit("notify");
         ConversationService.addMessage(room, socket.myId, content);
       });
     });

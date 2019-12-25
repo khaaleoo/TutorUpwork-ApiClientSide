@@ -28,5 +28,16 @@ export class UserRoutes {
       passport.authenticate("jwt", { session: false }),
       this.userController.changePassword
     );
+
+    this.router.post("/forgotPassword", this.userController.ForgotPassRequest);
+    this.router.post(
+      "/forgotPassword/code",
+      this.userController.ForgotPassCode
+    );
+    this.router.post(
+      "/forgotPassword/change",
+      this.userController.ForgotPassChange
+    );
+
   }
 }

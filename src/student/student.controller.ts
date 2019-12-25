@@ -7,7 +7,7 @@ export class StudentController {
     const result = await StudentModel.find({
       id: req.url.replace("/", "")
     });
-
+    console.log("getOne, result", req.url.replace("/", ""), result);
     if (result.length !== 0) {
       for (let i = 0; i < result[0].contracts.length; i += 1) {
         const contractsRes = await ContractModel.find({
@@ -28,16 +28,15 @@ export class StudentController {
           result[0].contracts[i] = "error";
         }
       }
+      res.status(200).send({
+        status: "OK",
+        data: result
+      });
     } else {
       res.status(200).send({
         status: "NotOk"
       });
     }
-
-    res.status(200).send({
-      status: "OK",
-      data: result
-    });
   }
   public updateOne(req: any, res: any) {
     const { body } = req;
