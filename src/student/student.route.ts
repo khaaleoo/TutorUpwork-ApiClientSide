@@ -12,7 +12,11 @@ export class StudentRoutes {
   }
 
   routes() {
-    this.router.get("/:id", this.studentController.getOne);
+    this.router.get(
+      "/:id",
+      passport.authenticate("jwt", { session: false }),
+      this.studentController.getOne
+    );
     this.router.post(
       "/",
       passport.authenticate("jwt", { session: false }),

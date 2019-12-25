@@ -16,7 +16,11 @@ export class TutorRoutes {
     this.router.get("/special", this.tutorController.getSpecial);
     this.router.get("/:id", this.tutorController.getOne);
     this.router.post("/filter", this.tutorController.getByFilters);
-    this.router.post("/comment", this.tutorController.comment);
+    this.router.post(
+      "/comment",
+      passport.authenticate("jwt", { session: false }),
+      this.tutorController.comment
+    );
     this.router.post(
       "/",
       passport.authenticate("jwt", { session: false }),
