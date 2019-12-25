@@ -61,7 +61,9 @@ export class TutorController {
     });
   }
   public async getSpecial(req: any, res: any): Promise<void> {
-    const result = await TutorModel.find({ star: { $eq: 5 } }).limit(8);
+    const result = await TutorModel.find()
+      .sort({ star: -1 })
+      .limit(8);
     res.status(200).send({
       status: "OK",
       data: result

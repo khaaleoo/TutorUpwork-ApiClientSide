@@ -9,7 +9,9 @@ import "../auth/passport";
 import { UserService } from "./user.service";
 import nodemailer from "nodemailer";
 import { host, emailPass, emailUser } from "../constant";
+
 import { hashSync, compare } from "bcrypt";
+
 
 const sendMail = (id: string, code: string, email: string) => {
   const smtpTransport = nodemailer.createTransport({
@@ -23,6 +25,7 @@ const sendMail = (id: string, code: string, email: string) => {
 
   var url = `${host}/user/verify?id=${id}&code=${code}`;
   var html = '<a href="' + url + '"><b>Bấm để xác thực </b></a>';
+
   const mailOptions = {
     from: emailUser,
     to: email,
@@ -42,6 +45,7 @@ const sendForgotEmail = (code: string, email: string) => {
     }
   });
   var html = `Code : <h1>${code}</h1>`;
+
   const mailOptions = {
     from: emailUser,
     to: email,
@@ -53,6 +57,7 @@ const sendForgotEmail = (code: string, email: string) => {
 
 export class UserController {
   async changePassword(req: any, res: any) {
+
     try {
       const { password, oldPassword } = req.body;
       const find = await UserModel.find({ id: req.user.id });
@@ -70,6 +75,7 @@ export class UserController {
       } else {
         throw new Error("Mật khẩu cũ sai");
       }
+
     } catch (err) {
       console.log(err);
       res.status(200).json({ status: "ERROR", message: err.message });
