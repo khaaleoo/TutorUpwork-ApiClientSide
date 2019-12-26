@@ -104,7 +104,7 @@ export class SandBoxController {
         { $set: { status: "Đã thanh toán" } }
       );
       console.log("update..", this.idContract);
-      res.redirect("http://localhost:8000/student");
+      res.redirect("https://uptutorvn.firebaseapp.com/student");
 
       // ghi xuong dv
       // tra ve thong bao
