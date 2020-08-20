@@ -39,7 +39,7 @@
     "@types/passport-local": "^1.0.33",
     "@types/socket.io": "^2.1.4",
     "base64-img": "^1.0.4",
-    "bcrypt": "^3.0.7",
+    "bcrypt": "^5.0.0",
     "class-transformer": "^0.2.3",
     "config": "^3.2.4",
     "cookie-parser": "~1.4.4",
